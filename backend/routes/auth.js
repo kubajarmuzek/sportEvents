@@ -3,6 +3,8 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
 
+require('dotenv').config();
+
 router.post('/register', async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -19,9 +21,11 @@ router.post('/register', async (req, res) => {
 
     res.status(201).json({ token });
   } catch (error) {
+    console.error(error); 
     res.status(500).json({ message: 'Server error' });
   }
 });
+
 
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
