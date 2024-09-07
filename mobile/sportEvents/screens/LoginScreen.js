@@ -1,29 +1,47 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { StyleSheet, View, TextInput, Button, Text, TouchableOpacity } from "react-native";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const LoginScreen = ({ navigation }) => {
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [emailFocused, setEmailFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
 
+  
   const login = async () => {
     try {
+      setError('');
+
       const res = await axios.post("http://10.0.2.2:5000/api/auth/login", {
         email,
         password,
       });
+  
+  
       await AsyncStorage.setItem("token", res.data.token);
+      await AsyncStorage.setItem("email", res.data.user.email);
+      await AsyncStorage.setItem("nickname", res.data.user.nickname);
+
+  
       navigation.navigate("HomeScreen");
     } catch (error) {
-      setError("Invalid credentials");
+      console.log('Error response:', error.response);
+  
+      if (error.response && error.response.data) {
+        setError(error.response.data.message || "Invalid credentials");
+      } else {
+        setError("Invalid credentials");
+      }
     }
   };
+  
 
   return (
+    
     <View style={styles.container}>
       <Text style={styles.header}>Welcome Back</Text>
       <View style={styles.card}>
@@ -72,7 +90,7 @@ const styles = StyleSheet.create({
   header: {
     fontSize: 30,
     fontWeight: "bold",
-    color: "#2E86C1", // Modern blue color
+    color: "#2E86C1", 
     textAlign: "center",
     marginBottom: 20,
   },

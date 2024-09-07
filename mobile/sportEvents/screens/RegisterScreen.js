@@ -1,26 +1,34 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import axios from 'axios';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 
 const RegisterScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [nickname, setNickname] = useState("");
   const [error, setError] = useState('');
   const [emailFocused, setEmailFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
+  const [nicknameFocused, setNicknameFocused] = useState(false);
+
 
   const register = async () => {
     try {
       const res = await axios.post('http://10.0.2.2:5000/api/auth/register', {
         email,
         password,
+        nickname, 
       });
+
+      await AsyncStorage.setItem('nickname', nickname);
+      
       navigation.navigate('LoginScreen');
     } catch (error) {
-      setError('Registration failed'+" "+error);
+      setError('Registration failed: ' + error.message);
     }
   };
-
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Create an Account</Text>
@@ -36,6 +44,15 @@ const RegisterScreen = ({ navigation }) => {
           style={[styles.input, emailFocused && styles.inputFocused]}
         />
         <TextInput
+          placeholder="Nickname"
+          value={nickname}
+          onChangeText={setNickname}
+          onFocus={() => setNicknameFocused(true)}
+          onBlur={() => setNicknameFocused(false)}
+          secureTextEntry
+          style={[styles.input, nicknameFocused && styles.inputFocused]}
+        />
+        <TextInput
           placeholder="Password"
           value={password}
           onChangeText={setPassword}
@@ -43,7 +60,7 @@ const RegisterScreen = ({ navigation }) => {
           onBlur={() => setPasswordFocused(false)}
           secureTextEntry
           style={[styles.input, passwordFocused && styles.inputFocused]}
-        />
+        />    
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
         <TouchableOpacity style={styles.button} onPress={register} activeOpacity={0.7}>
