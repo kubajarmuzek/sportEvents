@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Animated, StyleSheet, Dimensions } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import TournamentFormScreen from './TournamentFormScreen';
 
 const { width } = Dimensions.get('window');
 
@@ -47,7 +48,10 @@ const HomeScreen = ({ navigation }) => {
         <Animated.View style={[styles.slider, { left: slideAnim }]}>
           <Text style={styles.sliderButtonText}>{isOrganizer ? 'Organizing' : 'Participating'}</Text>
         </Animated.View>
+
       </View>
+      {isOrganizer?<TournamentFormScreen/>:console.log("participant")}
+
     </View>
   );
 };

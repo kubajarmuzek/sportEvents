@@ -1,6 +1,7 @@
 const { DataTypes } = require("sequelize");
 const bcrypt = require("bcryptjs");
 const sequelize = require("../config/database");
+const Tournament = require("./Tournament");
 
 const User = sequelize.define(
   "User",
@@ -38,5 +39,8 @@ const User = sequelize.define(
 User.prototype.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
+
+User.hasMany(Tournament, { foreignKey: 'organizerId' });
+Tournament.belongsTo(User, { foreignKey: 'organizerId', as: 'organizer' });
 
 module.exports = User;
