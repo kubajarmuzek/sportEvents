@@ -1,7 +1,9 @@
-import React, { useState,useEffect } from "react";
-import { StyleSheet, View, TextInput, Button, Text, TouchableOpacity } from "react-native";
+import React, { useState, useEffect } from "react";
+import { StyleSheet, View, TextInput, Button, Text, TouchableOpacity,Image } from "react-native";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import SvgComponent from "./Icon";
+import { createTable, insertUser } from "../database";
 
 const LoginScreen = ({ navigation }) => {
 
@@ -11,7 +13,7 @@ const LoginScreen = ({ navigation }) => {
   const [emailFocused, setEmailFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
 
-  
+
   const login = async () => {
     try {
       setError('');
@@ -20,18 +22,20 @@ const LoginScreen = ({ navigation }) => {
         email,
         password,
       });
-  
-  
+
+
       await AsyncStorage.setItem("token", res.data.token);
       await AsyncStorage.setItem("email", res.data.user.email);
       await AsyncStorage.setItem("nickname", res.data.user.nickname);
-      await AsyncStorage.setItem("id", res.data.user.id);
+      await AsyncStorage.setItem("id", String(res.data.user.id));
 
-  
+      insertUser(res.data.user.id, res.data.user.nickname);
+
       navigation.navigate("HomeScreen");
     } catch (error) {
+      console.log(error);
       console.log('Error response:', error.response);
-  
+
       if (error.response && error.response.data) {
         setError(error.response.data.message || "Invalid credentials");
       } else {
@@ -39,14 +43,18 @@ const LoginScreen = ({ navigation }) => {
       }
     }
   };
-  
+
 
   return (
-    
+
     <View style={styles.container}>
+      <Image
+        source={require('../assets/logo-color.png')}
+        style={{ width: 100, height: 100 }}
+      />
       <Text style={styles.header}>Welcome Back</Text>
       <View style={styles.card}>
-      <TextInput
+        <TextInput
           placeholder="Email"
           value={email}
           onChangeText={setEmail}
@@ -85,19 +93,19 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#fff",
     padding: 20,
   },
   header: {
     fontSize: 30,
     fontWeight: "bold",
-    color: "#2E86C1", 
+    color: "#2E86C1",
     textAlign: "center",
     marginBottom: 20,
   },
   card: {
     width: '100%',
-    backgroundColor: "#fff",
+    backgroundColor: "#f5f5f5",
     padding: 20,
     borderRadius: 10,
     shadowColor: "#000",
@@ -135,7 +143,7 @@ const styles = StyleSheet.create({
     color: "#888",
   },
   inputFocused: {
-    borderColor: '#2E86C1', 
+    borderColor: '#2E86C1',
   },
   loginLink: {
     color: '#ff6347',

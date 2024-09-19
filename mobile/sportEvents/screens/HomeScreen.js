@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Animated, StyleSheet, Dimensions } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import TournamentFormScreen from './TournamentFormScreen';
+import TournamentsListScreen from './TournamentListScreen';
+import { getNickname } from '../database';
 
 const { width } = Dimensions.get('window');
 
@@ -12,11 +14,16 @@ const HomeScreen = ({ navigation }) => {
 
   useEffect(() => {
     const fetchNickname = async () => {
-      const storedNickname = await AsyncStorage.getItem('nickname');
-      if (storedNickname) {
-        setNickname(storedNickname);
-      }
+      const userId = await AsyncStorage.getItem('id');
+      getNickname(userId, (nickname) => {
+        if (nickname) {
+          setNickname(nickname);
+        } else {
+          setNickname('User');
+        }
+      });
     };
+    
     fetchNickname();
   }, []);
 
@@ -50,7 +57,7 @@ const HomeScreen = ({ navigation }) => {
         </Animated.View>
 
       </View>
-      {isOrganizer?<TournamentFormScreen/>:console.log("participant")}
+      {isOrganizer?<TournamentFormScreen/>:<TournamentsListScreen/>}
 
     </View>
   );

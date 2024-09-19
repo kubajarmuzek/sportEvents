@@ -12,10 +12,11 @@ app.use(bodyParser.json());
 
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/tournaments', require('./routes/tournaments'));
+app.use('/api/users', require('./routes/tournaments'));
 
 const PORT = process.env.PORT || 5000;
 
-sequelize.sync({ alter: true })  // Keep a single sync call
+sequelize.sync({ alter: true })
   .then(() => {
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
     console.log('Database synced');

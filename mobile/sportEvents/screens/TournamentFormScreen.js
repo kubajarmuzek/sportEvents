@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import React, { useState,useEffect } from 'react';
+import { View, Text, TextInput, Button, StyleSheet, Alert,FlatList } from 'react-native';
 import axios from 'axios';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 
 const TournamentFormScreen = ({ navigation }) => {
   const [name, setName] = useState('');
@@ -9,15 +11,31 @@ const TournamentFormScreen = ({ navigation }) => {
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
   const [id, setId] = useState("");
+  const [sports,setSports] = useState([]);
+  const [error,setError] = useState("");
 
   useEffect(() => {
     const fetchId = async () => {
       const storedId = await AsyncStorage.getItem('nickname');
-      if (storedNickname) {
+      if (storedId) {
         setId(storedId);
       }
     };
+    const fetchSports = async () => {
+      try {
+        const response = await fetch('https://www.thesportsdb.com/api/v1/json/3/all_sports.php');
+        console.log(response);
+
+        const data = await response.json();
+        setSports(data.sports);
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchId();
+    //fetchSports();
   }, []);
 
   const handleSubmit = async () => {
@@ -27,7 +45,7 @@ const TournamentFormScreen = ({ navigation }) => {
     }
 
     try {
-      setLoading(true); // Start loading
+      setLoading(true);
       const response = await axios.post('http://10.0.2.2:5000/api/tournaments', {
         name,
         startDate,
@@ -84,6 +102,7 @@ const TournamentFormScreen = ({ navigation }) => {
         color="#27ae60" 
         disabled={loading} 
       />
+      
     </View>
   );
 };

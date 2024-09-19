@@ -39,4 +39,11 @@ const Tournament = sequelize.define('Tournament', {
   timestamps: true,
 });
 
+Tournament.associate = (models) => {
+  Tournament.hasMany(models.Participant, {
+      foreignKey: 'tournamentId',
+      as: 'participants',
+  });
+};
+
 module.exports = Tournament;
