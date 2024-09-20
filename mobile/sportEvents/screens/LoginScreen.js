@@ -3,7 +3,6 @@ import { StyleSheet, View, TextInput, Button, Text, TouchableOpacity,Image } fro
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import SvgComponent from "./Icon";
-import { createTable, insertUser } from "../database";
 
 const LoginScreen = ({ navigation }) => {
 
@@ -28,8 +27,6 @@ const LoginScreen = ({ navigation }) => {
       await AsyncStorage.setItem("email", res.data.user.email);
       await AsyncStorage.setItem("nickname", res.data.user.nickname);
       await AsyncStorage.setItem("id", String(res.data.user.id));
-
-      insertUser(res.data.user.id, res.data.user.nickname);
 
       navigation.navigate("HomeScreen");
     } catch (error) {

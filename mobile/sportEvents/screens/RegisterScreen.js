@@ -49,7 +49,6 @@ const RegisterScreen = ({ navigation }) => {
           onChangeText={setNickname}
           onFocus={() => setNicknameFocused(true)}
           onBlur={() => setNicknameFocused(false)}
-          secureTextEntry
           style={[styles.input, nicknameFocused && styles.inputFocused]}
         />
         <TextInput

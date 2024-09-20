@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, Animated, StyleSheet, Dimensions } from '
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import TournamentFormScreen from './TournamentFormScreen';
 import TournamentsListScreen from './TournamentListScreen';
-import { getNickname } from '../database';
+import axios from 'axios';
 
 const { width } = Dimensions.get('window');
 
@@ -11,20 +11,37 @@ const HomeScreen = ({ navigation }) => {
   const [isOrganizer, setIsOrganizer] = useState(false);
   const slideAnim = useRef(new Animated.Value(0)).current;
   const [nickname, setNickname] = useState('');
+  const [quote, setQuote] = useState("");
 
   useEffect(() => {
+    const fetchQuote = async () => {
+      try {
+        const response = await axios.get("http://api.quotable.io/random");
+        console.log(response.data)
+        const randomQuote =
+          response.data.content;
+        setQuote(randomQuote);
+      } catch (error) {
+        console.error("Error fetching quote:", error);
+      }
+    };
     const fetchNickname = async () => {
-      const userId = await AsyncStorage.getItem('id');
-      getNickname(userId, (nickname) => {
+      try {
+        const nickname = await AsyncStorage.getItem('nickname');
         if (nickname) {
           setNickname(nickname);
         } else {
-          setNickname('User');
+          setNickname('User'); 
         }
-      });
+      } catch (error) {
+        console.error('Error fetching nickname:', error);
+        setNickname('User');
+      }
     };
     
+    
     fetchNickname();
+    fetchQuote();
   }, []);
 
   const switchTo = (organizer) => {
@@ -40,6 +57,7 @@ const HomeScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Welcome, {nickname}!</Text>
+      <Text style={styles.quoting}>{quote}!</Text>
 
       <Text style={styles.subHeading}>Choose your role</Text>
 
@@ -74,6 +92,15 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  quoting: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   toggleContainer: {
     width: width * 0.9,

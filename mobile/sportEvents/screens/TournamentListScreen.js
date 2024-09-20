@@ -60,14 +60,16 @@ const TournamentsListScreen = () => {
     if (error) return <Text>{error}</Text>;
 
     return (
-        <View>
+        <View style={styles.container}>
             <FlatList
-                data={tournaments}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={({ item }) => (
+            data={tournaments}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => {
+                const formattedStartDate = new Date(item.startDate).toISOString().split('T')[0];
+                return (
                     <View style={styles.item}>
                         <Text>{item.name}</Text>
-                        <Text>{item.startDate}</Text>
+                        <Text>{formattedStartDate}</Text>
                         <Text>{item.location}</Text>
                         <TouchableOpacity style={styles.button} onPress={() => handleSignUp(item.id)}>
                             <Text style={styles.buttonText}>Sign Up</Text>
@@ -76,8 +78,9 @@ const TournamentsListScreen = () => {
                             <Text style={styles.buttonText}>View Participants</Text>
                         </TouchableOpacity>
                     </View>
-                )}
-            />
+                );
+            }}
+        />
             
             <Modal
                 animationType="slide"
@@ -104,6 +107,11 @@ const TournamentsListScreen = () => {
 };
 
 const styles = StyleSheet.create({
+    container: {
+        maxHeight: 400,
+        flex: 1,
+        backgroundColor: '#f5f5f5',
+    },
     item: {
         padding: 20,
         borderBottomWidth: 1,
