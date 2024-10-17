@@ -1,27 +1,31 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, View, TextInput, Button, Text, TouchableOpacity,Image } from "react-native";
+import {
+  StyleSheet,
+  View,
+  TextInput,
+  Button,
+  Text,
+  TouchableOpacity,
+  Image,
+} from "react-native";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import SvgComponent from "./Icon";
 
 const LoginScreen = ({ navigation }) => {
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [emailFocused, setEmailFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
 
-
   const login = async () => {
     try {
-      setError('');
+      setError("");
 
       const res = await axios.post("http://10.0.2.2:5000/api/auth/login", {
         email,
         password,
       });
-
 
       await AsyncStorage.setItem("token", res.data.token);
       await AsyncStorage.setItem("email", res.data.user.email);
@@ -31,7 +35,7 @@ const LoginScreen = ({ navigation }) => {
       navigation.navigate("HomeScreen");
     } catch (error) {
       console.log(error);
-      console.log('Error response:', error.response);
+      console.log("Error response:", error.response);
 
       if (error.response && error.response.data) {
         setError(error.response.data.message || "Invalid credentials");
@@ -41,13 +45,11 @@ const LoginScreen = ({ navigation }) => {
     }
   };
 
-
   return (
-
     <View style={styles.container}>
       <Image
-        source={require('../assets/logo-color.png')}
-        style={{ width: 100, height: 100 }}
+        source={require("../assets/logo-color.png")}
+        style={{ width: 150, height: 100 }}
       />
       <Text style={styles.header}>Welcome Back</Text>
       <View style={styles.card}>
@@ -76,7 +78,13 @@ const LoginScreen = ({ navigation }) => {
         </View>
         <View style={styles.registerContainer}>
           <Text style={styles.registerText}>Don't have an account?</Text>
-          <TouchableOpacity onPress={() => navigation.navigate("RegisterScreen")}>
+          <TouchableOpacity
+            onPress={() => {
+              setPassword("");
+              setEmail("");
+              navigation.navigate("RegisterScreen");
+            }}
+          >
             <Text style={styles.loginLink}>Go to Register</Text>
           </TouchableOpacity>
         </View>
@@ -101,7 +109,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   card: {
-    width: '100%',
+    width: "100%",
     backgroundColor: "#f5f5f5",
     padding: 20,
     borderRadius: 10,
@@ -140,11 +148,11 @@ const styles = StyleSheet.create({
     color: "#888",
   },
   inputFocused: {
-    borderColor: '#2E86C1',
+    borderColor: "#2E86C1",
   },
   loginLink: {
-    color: '#ff6347',
-    fontWeight: 'bold',
+    color: "#ff6347",
+    fontWeight: "bold",
   },
 });
 

@@ -75,6 +75,7 @@ const HomeScreen = ({ navigation }) => {
         </Animated.View>
 
       </View>
+
       {isOrganizer?<TournamentFormScreen/>:<TournamentsListScreen/>}
 
     </View>

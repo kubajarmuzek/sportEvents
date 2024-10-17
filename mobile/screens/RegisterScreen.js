@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, TextInput, Button, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -31,6 +31,10 @@ const RegisterScreen = ({ navigation }) => {
   };
   return (
     <View style={styles.container}>
+      <Image
+        source={require("../assets/logo-color.png")}
+        style={{ width: 150, height: 100 }}
+      />
       <Text style={styles.header}>Create an Account</Text>
       <View style={styles.card}>
         <TextInput
@@ -82,7 +86,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#fff',
     padding: 20,
   },
   header: {
@@ -94,7 +98,7 @@ const styles = StyleSheet.create({
   },
   card: {
     width: '100%',
-    backgroundColor: '#fff',
+    backgroundColor: '#f5f5f5',
     padding: 20,
     borderRadius: 10,
     shadowColor: '#000',

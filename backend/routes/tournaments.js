@@ -22,7 +22,7 @@ router.post('/', async (req, res) => {
       description,
       organizerId,
     });
-    res.status(201).json(newTournament);  // Success response
+    res.status(201).json(newTournament); 
   } catch (error) {
     console.error('Error creating tournament:', error);
     res.status(500).json({ message: 'Server error' });
