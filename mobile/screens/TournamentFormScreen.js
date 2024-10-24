@@ -8,20 +8,26 @@ import {
   StyleSheet,
   Button,
   Alert,
-  SafeAreaView,
 } from "react-native";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import config from 'react-native-config';
+
 
 const TournamentFormScreen = () => {
   const [name, setName] = useState("");
   const [startDate, setStartDate] = useState("");
-  const [location, setLocation] = useState(""); 
+  const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
   const [organizerId, setOrganizerId] = useState("");
   const [locationInput, setLocationInput] = useState("");
   const [suggestions, setSuggestions] = useState([]);
+  const [maxTeams, setMaxTeams] = useState("");
+  const [teamSize, setTeamSize] = useState("");
+  const [sport, setSport] = useState("");
+  const [sportsList, setSportsList] = useState([]); 
+  const [showSports, setShowSports] = useState(false);
 
   useEffect(() => {
     const fetchId = async () => {
@@ -32,6 +38,19 @@ const TournamentFormScreen = () => {
   }, []);
 
   useEffect(() => {
+    const fetchSports = async () => {
+      try {
+        const response = await axios.get("http://10.0.2.2:5000/api/sports"); 
+        setSportsList(response.data);
+      } catch (error) {
+        console.error("Error fetching sports:", error);
+      }
+    };
+
+    fetchSports();
+  }, []);
+
+  useEffect(() => {
     const fetchLocations = async (query) => {
       if (query.length > 2) {
         try {
@@ -39,20 +58,18 @@ const TournamentFormScreen = () => {
             `https://api.mapbox.com/geocoding/v5/mapbox.places/${query}.json`,
             {
               params: {
-                access_token:
-                  "pk.eyJ1IjoiamFrdWJqIiwiYSI6ImNtMjFsajY0YjBzeDkyaXNjbHh2MzVhbGgifQ.FKQ4ylPaSfQ8s1G1_Hh75g",
+                access_token: "pk.eyJ1IjoiamFrdWJqIiwiYSI6ImNtMjFsajY0YjBzeDkyaXNjbHh2MzVhbGgifQ.FKQ4ylPaSfQ8s1G1_Hh75g",
                 autocomplete: true,
                 limit: 5,
               },
             }
           );
-          console.log("Mapbox API response:", response.data.features);
           setSuggestions(response.data.features);
         } catch (error) {
-          console.error("Error fetching locations:", error);
+          console.error("Error fetching data from Mapbox:", error.response ? error.response.data : error.message);
         }
       } else {
-        setSuggestions([]); 
+        setSuggestions([]);
       }
     };
 
@@ -60,23 +77,25 @@ const TournamentFormScreen = () => {
   }, [locationInput]);
 
   const handleSubmit = async () => {
-    if (!name || !startDate || !location || !description) {
+    if (!name || !startDate || !location || !description || !sport || !maxTeams || !teamSize) {
       Alert.alert("Error", "Please fill in all fields");
       return;
     }
 
     try {
       setLoading(true);
-      console.log(name, startDate, location, description, organizerId);
 
       const response = await axios.post(
-        "http://10.0.2.2:5000/api/tournaments",
+        "http://10.0.2.2:5000/api/tournaments", 
         {
           name,
           startDate,
           location,
           description,
           organizerId,
+          sport,  
+          maxTeams,
+          teamSize,
         }
       );
 
@@ -94,29 +113,39 @@ const TournamentFormScreen = () => {
   };
 
   const handleLocationSelect = (item) => {
-    setLocation(item.place_name); 
-    setLocationInput(item.place_name); 
-    setSuggestions([]); 
+    setLocation(item.place_name);
+    setLocationInput(item.place_name);
+    setSuggestions([]);
+  };
+
+  const handleSportSelect = (item) => {
+    setSport(item.sport);
+    setMaxTeams(item.suggestedTeams.toString());
+    setTeamSize(item.teamSize.toString());
+    setShowSports(false);
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Add Tournament</Text>
+      
       <TextInput
         placeholder="Tournament Name"
         value={name}
         onChangeText={setName}
         style={styles.input}
       />
+
       <TextInput
         placeholder="Start Date (YYYY-MM-DD)"
         value={startDate}
         onChangeText={setStartDate}
         style={styles.input}
       />
+
       <TextInput
         placeholder="Location"
-        value={locationInput} 
+        value={locationInput}
         onChangeText={setLocationInput}
         style={styles.input}
       />
@@ -134,13 +163,49 @@ const TournamentFormScreen = () => {
         />
       )}
 
+      <TouchableOpacity style={styles.input} onPress={() => setShowSports(!showSports)}>
+        <Text style={sport ? styles.selectedText : styles.placeholderText}>
+          {sport || "Select Sport Discipline"}
+        </Text>
+      </TouchableOpacity>
+
+      {showSports && (
+        <FlatList
+          data={sportsList}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={styles.sportItem}
+              onPress={() => handleSportSelect(item)}>
+              <Text style={styles.itemText}>{item.sport}</Text>
+            </TouchableOpacity>
+          )}
+        />
+      )}
+
+      <TextInput
+        placeholder="Max Teams"
+        value={maxTeams}
+        onChangeText={setMaxTeams}
+        keyboardType="numeric"
+        style={styles.input}
+      />
+
+      <TextInput
+        placeholder="Team Size"
+        value={teamSize}
+        onChangeText={setTeamSize}
+        keyboardType="numeric"
+        style={styles.input}
+      />
+
       <TextInput
         placeholder="Description"
         value={description}
         onChangeText={setDescription}
         style={[styles.input, styles.textArea]}
         multiline
-        numberOfLines={18}
+        numberOfLines={3}
       />
 
       <Button
@@ -155,7 +220,7 @@ const TournamentFormScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
+    width: "100%",
     flex: 1,
     padding: 20,
     backgroundColor: "#f5f5f5",
@@ -170,32 +235,44 @@ const styles = StyleSheet.create({
     borderColor: "#ddd",
     borderRadius: 5,
     padding: 10,
-    marginBottom: 10, 
+    marginBottom: 10,
     fontSize: 16,
-    backgroundColor: '#fff', 
-    elevation: 1, 
-    shadowColor: '#000', 
-    shadowOffset: { width: 0, height: 1 }, 
-    shadowOpacity: 0.2, 
-    shadowRadius: 1, 
+    backgroundColor: "#fff",
+    elevation: 1,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 1,
   },
   suggestionList: {
-    position: 'absolute',
-    top: 50, 
-    zIndex: 1, 
-    backgroundColor: '#fff',
+    position: "absolute",
+    top: 50,
+    zIndex: 1,
+    backgroundColor: "#fff",
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: "#ddd",
     borderRadius: 5,
-    maxHeight: 150, 
-    overflow: 'hidden', 
+    maxHeight: 150,
+    overflow: "hidden",
   },
   itemText: {
     padding: 10,
     fontSize: 16,
-    color: '#333',
+    color: "#333",
+  },
+  sportItem: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderColor: "#ddd",
+  },
+  selectedText: {
+    color: "#333",
+    fontSize: 16,
+  },
+  placeholderText: {
+    color: "#888",
+    fontSize: 16,
   },
 });
-
 
 export default TournamentFormScreen;

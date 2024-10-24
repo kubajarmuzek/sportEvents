@@ -59,11 +59,11 @@ router.post('/login', async (req, res) => {
       }
     };
 
-    console.log('Login response:', response);  // Log the response
+    console.log('Login response:', response); 
 
     res.json(response);
   } catch (error) {
-    console.error('Login error:', error);  // Log any backend errors
+    console.error('Login error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
