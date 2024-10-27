@@ -8,9 +8,9 @@ require('dotenv').config();
 
 
 router.post('/', async (req, res) => {
-  const { name, startDate, location, description, organizerId } = req.body;
+  const { name, startDate, location, description, organizerId, sport, maxTeams, teamSize } = req.body;
 
-  if (!name || !startDate || !location || !organizerId) {
+  if (!name || !startDate || !location || !organizerId || !sport || !maxTeams || !teamSize) {
     return res.status(400).json({ message: 'All fields are required' });
   }
 
@@ -21,6 +21,9 @@ router.post('/', async (req, res) => {
       location,
       description,
       organizerId,
+      sport,
+      maxTeams,
+      teamSize,
     });
     res.status(201).json(newTournament); 
   } catch (error) {
@@ -28,6 +31,7 @@ router.post('/', async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
 
 router.get('/', async (req, res) => {
   try {

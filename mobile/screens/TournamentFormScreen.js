@@ -12,8 +12,7 @@ import {
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import config from 'react-native-config';
-
-
+ 
 const TournamentFormScreen = () => {
   const [name, setName] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -129,22 +128,22 @@ const TournamentFormScreen = () => {
     <View style={styles.container}>
       <Text style={styles.header}>Add Tournament</Text>
       
+      <Text style={styles.label}>Tournament Name</Text>
       <TextInput
-        placeholder="Tournament Name"
         value={name}
         onChangeText={setName}
         style={styles.input}
       />
 
+      <Text style={styles.label}>Start Date (YYYY-MM-DD)</Text>
       <TextInput
-        placeholder="Start Date (YYYY-MM-DD)"
         value={startDate}
         onChangeText={setStartDate}
         style={styles.input}
       />
 
+      <Text style={styles.label}>Location</Text>
       <TextInput
-        placeholder="Location"
         value={locationInput}
         onChangeText={setLocationInput}
         style={styles.input}
@@ -163,9 +162,10 @@ const TournamentFormScreen = () => {
         />
       )}
 
+      <Text style={styles.label}>Sport Discipline</Text>
       <TouchableOpacity style={styles.input} onPress={() => setShowSports(!showSports)}>
         <Text style={sport ? styles.selectedText : styles.placeholderText}>
-          {sport || "Select Sport Discipline"}
+          {sport || ""}
         </Text>
       </TouchableOpacity>
 
@@ -183,24 +183,24 @@ const TournamentFormScreen = () => {
         />
       )}
 
+      <Text style={styles.label}>Max Teams</Text>
       <TextInput
-        placeholder="Max Teams"
         value={maxTeams}
         onChangeText={setMaxTeams}
         keyboardType="numeric"
         style={styles.input}
       />
 
+      <Text style={styles.label}>Team Size</Text>
       <TextInput
-        placeholder="Team Size"
         value={teamSize}
         onChangeText={setTeamSize}
         keyboardType="numeric"
         style={styles.input}
       />
 
+      <Text style={styles.label}>Description</Text>
       <TextInput
-        placeholder="Description"
         value={description}
         onChangeText={setDescription}
         style={[styles.input, styles.textArea]}
@@ -229,6 +229,11 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
+  },
+  label: {
+    fontSize: 13,
+    marginBottom: 5,
+    color: "#333",
   },
   input: {
     borderWidth: 1,

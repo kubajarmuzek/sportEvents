@@ -27,6 +27,18 @@ const Tournament = sequelize.define('Tournament', {
     allowNull: false,
     defaultValue: 16,
   },
+  sport: {                       
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  maxTeams: {                   
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  teamSize: {                  
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
   organizerId: {
     type: DataTypes.INTEGER,
     allowNull: false,
@@ -38,6 +50,7 @@ const Tournament = sequelize.define('Tournament', {
 }, {
   timestamps: true,
 });
+
 
 Tournament.associate = (models) => {
   Tournament.hasMany(models.Participant, {
