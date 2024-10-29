@@ -65,7 +65,6 @@ const TournamentsListScreen = () => {
             data={tournaments}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => {
-                console.log(item);
                 const formattedStartDate = new Date(item.startDate).toISOString().split('T')[0];
                 return (
                     <View style={styles.item}>

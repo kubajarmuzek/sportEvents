@@ -11,11 +11,11 @@ import {
 } from "react-native";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import config from 'react-native-config';
- 
+import config from "react-native-config";
+import DateTimePicker from "@react-native-community/datetimepicker";
+
 const TournamentFormScreen = () => {
   const [name, setName] = useState("");
-  const [startDate, setStartDate] = useState("");
   const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
@@ -25,8 +25,11 @@ const TournamentFormScreen = () => {
   const [maxTeams, setMaxTeams] = useState("");
   const [teamSize, setTeamSize] = useState("");
   const [sport, setSport] = useState("");
-  const [sportsList, setSportsList] = useState([]); 
+  const [sportsList, setSportsList] = useState([]);
   const [showSports, setShowSports] = useState(false);
+  const [startDate, setStartDate] = useState(new Date());
+  const [showPicker, setShowPicker] = useState(false);
+
 
   useEffect(() => {
     const fetchId = async () => {
@@ -39,7 +42,7 @@ const TournamentFormScreen = () => {
   useEffect(() => {
     const fetchSports = async () => {
       try {
-        const response = await axios.get("http://10.0.2.2:5000/api/sports"); 
+        const response = await axios.get("http://10.0.2.2:5000/api/sports");
         setSportsList(response.data);
       } catch (error) {
         console.error("Error fetching sports:", error);
@@ -57,7 +60,8 @@ const TournamentFormScreen = () => {
             `https://api.mapbox.com/geocoding/v5/mapbox.places/${query}.json`,
             {
               params: {
-                access_token: "pk.eyJ1IjoiamFrdWJqIiwiYSI6ImNtMjFsajY0YjBzeDkyaXNjbHh2MzVhbGgifQ.FKQ4ylPaSfQ8s1G1_Hh75g",
+                access_token:
+                  "pk.eyJ1IjoiamFrdWJqIiwiYSI6ImNtMjFsajY0YjBzeDkyaXNjbHh2MzVhbGgifQ.FKQ4ylPaSfQ8s1G1_Hh75g",
                 autocomplete: true,
                 limit: 5,
               },
@@ -65,7 +69,10 @@ const TournamentFormScreen = () => {
           );
           setSuggestions(response.data.features);
         } catch (error) {
-          console.error("Error fetching data from Mapbox:", error.response ? error.response.data : error.message);
+          console.error(
+            "Error fetching data from Mapbox:",
+            error.response ? error.response.data : error.message
+          );
         }
       } else {
         setSuggestions([]);
@@ -76,7 +83,15 @@ const TournamentFormScreen = () => {
   }, [locationInput]);
 
   const handleSubmit = async () => {
-    if (!name || !startDate || !location || !description || !sport || !maxTeams || !teamSize) {
+    if (
+      !name ||
+      !startDate ||
+      !location ||
+      !description ||
+      !sport ||
+      !maxTeams ||
+      !teamSize
+    ) {
       Alert.alert("Error", "Please fill in all fields");
       return;
     }
@@ -85,14 +100,14 @@ const TournamentFormScreen = () => {
       setLoading(true);
 
       const response = await axios.post(
-        "http://10.0.2.2:5000/api/tournaments", 
+        "http://10.0.2.2:5000/api/tournaments",
         {
           name,
-          startDate,
+          startDate: startDate.toISOString(),
           location,
           description,
           organizerId,
-          sport,  
+          sport,
           maxTeams,
           teamSize,
         }
@@ -124,23 +139,38 @@ const TournamentFormScreen = () => {
     setShowSports(false);
   };
 
+  const onDateChange = (event, selectedDate) => {
+    const currentDate = selectedDate || startDate;
+    setShowPicker(false);
+    setStartDate(currentDate);
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Add Tournament</Text>
-      
-      <Text style={styles.label}>Tournament Name</Text>
-      <TextInput
-        value={name}
-        onChangeText={setName}
-        style={styles.input}
-      />
 
-      <Text style={styles.label}>Start Date (YYYY-MM-DD)</Text>
-      <TextInput
-        value={startDate}
-        onChangeText={setStartDate}
+      <Text style={styles.label}>Tournament Name</Text>
+      <TextInput value={name} onChangeText={setName} style={styles.input} />
+
+      <Text style={styles.label}>Start Date</Text>
+
+      <TouchableOpacity
+        onPress={() => setShowPicker(true)}
         style={styles.input}
-      />
+      >
+        <Text>
+          {startDate ? startDate.toDateString() : "Select Start Date"}
+        </Text>
+      </TouchableOpacity>
+
+      {showPicker && (
+        <DateTimePicker
+          value={startDate}
+          mode="date"
+          display="default"
+          onChange={onDateChange}
+        />
+      )}
 
       <Text style={styles.label}>Location</Text>
       <TextInput
@@ -163,7 +193,10 @@ const TournamentFormScreen = () => {
       )}
 
       <Text style={styles.label}>Sport Discipline</Text>
-      <TouchableOpacity style={styles.input} onPress={() => setShowSports(!showSports)}>
+      <TouchableOpacity
+        style={styles.input}
+        onPress={() => setShowSports(!showSports)}
+      >
         <Text style={sport ? styles.selectedText : styles.placeholderText}>
           {sport || ""}
         </Text>
@@ -176,7 +209,8 @@ const TournamentFormScreen = () => {
           renderItem={({ item }) => (
             <TouchableOpacity
               style={styles.sportItem}
-              onPress={() => handleSportSelect(item)}>
+              onPress={() => handleSportSelect(item)}
+            >
               <Text style={styles.itemText}>{item.sport}</Text>
             </TouchableOpacity>
           )}
@@ -236,6 +270,8 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   input: {
+    height: 50,
+    justifyContent: "center",
     borderWidth: 1,
     borderColor: "#ddd",
     borderRadius: 5,

@@ -11,19 +11,8 @@ const HomeScreen = ({ navigation }) => {
   const [isOrganizer, setIsOrganizer] = useState(false);
   const slideAnim = useRef(new Animated.Value(0)).current;
   const [nickname, setNickname] = useState('');
-  const [quote, setQuote] = useState("");
 
   useEffect(() => {
-    const fetchQuote = async () => {
-      try {
-        const response = await axios.get("http://api.quotable.io/random");
-        const randomQuote = response.data.content;
-        setQuote(randomQuote);
-      } catch (error) {
-        console.error("Error fetching quote:", error);
-      }
-    };
-
     const fetchNickname = async () => {
       try {
         const nickname = await AsyncStorage.getItem('nickname');
@@ -35,7 +24,6 @@ const HomeScreen = ({ navigation }) => {
     };
 
     fetchNickname();
-    fetchQuote();
   }, []);
 
   const switchTo = (organizer) => {
@@ -58,8 +46,6 @@ const HomeScreen = ({ navigation }) => {
         ListHeaderComponent={
           <>
             <Text style={styles.heading}>Welcome, {nickname}!</Text>
-            <Text style={styles.quoting}>{quote}!</Text>
-
             <Text style={styles.subHeading}>Choose your role</Text>
 
             <View style={styles.toggleContainer}>
