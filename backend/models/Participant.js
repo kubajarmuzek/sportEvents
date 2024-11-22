@@ -16,6 +16,13 @@ const Participant = sequelize.define('Participant', {
         key: 'id',
       },
     },
+    teamId: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'Teams',
+        key: 'id',
+      },
+    },
   });
 
   Participant.associate = (models) => {

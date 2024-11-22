@@ -3,6 +3,7 @@ const router = express.Router();
 const Tournament = require('../models/Tournament');
 const Participant = require('../models/Participant');
 const User = require('../models/User');
+const Team = require('../models/Team');
 
 require('dotenv').config();
 
@@ -44,16 +45,17 @@ router.get('/', async (req, res) => {
 });
 
 router.post('/signup', async (req, res) => {
-  const { userId, tournamentId } = req.body;
+  const { userId, tournamentId, teamId } = req.body;
 
   try {
-    const participant = await Participant.create({ userId, tournamentId });
+    const participant = await Participant.create({ userId, tournamentId, teamId });
     res.status(201).json(participant);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error signing up for tournament' });
   }
 });
+
 
 router.get('/:id/participants', async (req, res) => {
   const tournamentId = req.params.id;
@@ -70,6 +72,33 @@ router.get('/:id/participants', async (req, res) => {
       res.status(500).json({ message: 'Error fetching participants' });
   }
 });
+
+router.post('/:tournamentId/teams', async (req, res) => {
+  const { name, leaderId } = req.body;
+  const { tournamentId } = req.params;
+
+  try {
+    const team = await Team.create({ name, leaderId, tournamentId });
+    res.status(201).json(team);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error creating team' });
+  }
+});
+
+router.get('/:tournamentId/teams', async (req, res) => {
+  const { tournamentId } = req.params;
+
+  try {
+    const teams = await Team.findAll({ where: { tournamentId } });
+    res.json(teams);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error fetching teams' });
+  }
+});
+
+
 
 
 module.exports = router;
