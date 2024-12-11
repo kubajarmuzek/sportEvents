@@ -3,7 +3,7 @@ import { Link, BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import axios from "axios";
 import "./LoginScreen.css";
 
-const LoginScreen = () => {
+const LoginScreen = ( {onPress} ) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -14,7 +14,7 @@ const LoginScreen = () => {
     try {
       setError("");
 
-      const res = await axios.post("http://localhost:5000/api/auth/login", {
+      const res = await axios.post("http://127.0.0.1:5000/api/auth/login", {
         email,
         password,
       });
@@ -23,6 +23,9 @@ const LoginScreen = () => {
       localStorage.setItem("email", res.data.user.email);
       localStorage.setItem("nickname", res.data.user.nickname);
       localStorage.setItem("id", String(res.data.user.id));
+
+      login(res.data.token); // Update the authentication state
+
 
       window.location.href = "/home";
     } catch (error) {
@@ -68,9 +71,9 @@ const LoginScreen = () => {
         </button>
         <div className="register-container">
           <p className="register-text">Don't have an account?</p>
-          <Link to="/register" className="register-link">
+          <button onClick={() => onPress()} className="register-link">
             Go to Register
-          </Link>
+          </button>
         </div>
       </div>
     </div>

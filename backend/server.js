@@ -4,10 +4,17 @@ const User = require('./models/User');
 const Tournament = require('./models/Tournament')
 const dotenv = require('dotenv');
 const bodyParser = require('body-parser');
+const cors = require('cors');
+
 
 dotenv.config();
 
 const app = express();
+app.use(cors({
+  origin: 'http://localhost:3000',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: true,
+}));
 app.use(bodyParser.json());
 
 app.use('/api/auth', require('./routes/auth'));

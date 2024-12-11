@@ -11,14 +11,7 @@ function Auth() {
 
   return (
     <div className="auth-container">
-      <div className="auth-header">
-        <h2>{isLogin ? "Login" : "Sign Up"}</h2>
-        <button onClick={toggleScreen} className="toggle-button">
-          {isLogin ? "Go to Sign Up" : "Go to Login"}
-        </button>
-      </div>
-      
-      {isLogin ? <LoginScreen /> : <RegisterScreen />}
+      {isLogin ? <LoginScreen onPress={toggleScreen}/> : <RegisterScreen onPress={toggleScreen}/>}
     </div>
   );
 }

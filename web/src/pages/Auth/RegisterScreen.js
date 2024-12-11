@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Link,useNavigate } from 'react-router-dom';
-import './RegisterScreen.css';  // Import the updated CSS file
+import './RegisterScreen.css';
 
-const RegisterScreen = () => {
+const RegisterScreen = ( {onPress} ) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [nickname, setNickname] = useState('');
@@ -16,7 +16,7 @@ const RegisterScreen = () => {
 
   const register = async () => {
     try {
-      const res = await axios.post('http://10.0.2.2:5000/api/auth/register', {
+      const res = await axios.post('http://127.0.0.1:5000/api/auth/register', {
         email,
         password,
         nickname, 
@@ -24,7 +24,7 @@ const RegisterScreen = () => {
 
       localStorage.setItem('nickname', nickname);
       
-      navigate('/login');
+      onPress()
     } catch (error) {
       setError('Registration failed: ' + error.message);
     }
@@ -74,9 +74,9 @@ const RegisterScreen = () => {
 
         <div className="log-container">
           <p className="log-text">Already have an account?</p>
-          <Link to="/login" className="log-link">
+          <button onClick={() => onPress()} className="log-link">
             Go to Login
-          </Link>
+          </button>
         </div>
       </div>
     </div>
