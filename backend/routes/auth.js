@@ -6,14 +6,14 @@ const router = express.Router();
 require('dotenv').config();
 
 router.post('/register', async (req, res) => {
-  const { email, password, nickname } = req.body;  
+  const { email, password, nickname, gender, birthDate } = req.body;  
   try {
     let user = await User.findOne({ where: { email } });
     if (user) {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    user = await User.create({ email, password, nickname }); 
+    user = await User.create({ email, password, nickname, gender, birthDate }); 
 
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
       expiresIn: '1h',
@@ -24,7 +24,9 @@ router.post('/register', async (req, res) => {
       user: {
         id: user.id,
         email: user.email,
-        nickname: user.nickname 
+        nickname: user.nickname, 
+        gender: user.gender,
+        birthDate: user.birthDate,
       }
     });
   } catch (error) {
@@ -55,7 +57,9 @@ router.post('/login', async (req, res) => {
       user: {
         id: user.id,
         email: user.email,
-        nickname: user.nickname
+        nickname: user.nickname,
+        gender: user.gender,
+        birthDate: user.birthDate,
       }
     };
 
