@@ -20,6 +20,14 @@ const User = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    gender:{
+      type: DataTypes.ENUM("male,female"),
+      allowNull: false,
+    },
+    birthDate:{
+      type: DataTypes.DATE,
+      allowNull:false,
+    }
   },
   {
     hooks: {
