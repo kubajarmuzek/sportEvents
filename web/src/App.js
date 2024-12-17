@@ -1,12 +1,15 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import Home from './pages/Home';
-import LoginScreen from './pages/Auth/LoginScreen';
-import SignupScreen from './pages/Auth/RegisterScreen';
-import Auth from './pages/Auth/Auth';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import Home from "./pages/Home";
+import LoginScreen from "./pages/Auth/LoginScreen";
+import SignupScreen from "./pages/Auth/RegisterScreen";
+import Auth from "./pages/Auth/Auth";
 import { AuthContext } from "./context/AuthProvider";
 import React, { useContext } from "react";
-
-
 
 function App() {
   const { isAuthenticated } = useContext(AuthContext);
@@ -14,6 +17,7 @@ function App() {
   return (
     <Router>
       <Routes>
+        <Route path="/" element={<Navigate to="/home" replace />} />
         <Route
           path="/home"
           element={isAuthenticated ? <Home /> : <Navigate to="/auth" />}
