@@ -24,7 +24,7 @@ const LoginScreen = ( {onPress} ) => {
       localStorage.setItem("nickname", res.data.user.nickname);
       localStorage.setItem("id", String(res.data.user.id));
 
-      login(res.data.token); // Update the authentication state
+      login(res.data.token); 
 
 
       window.location.href = "/home";
