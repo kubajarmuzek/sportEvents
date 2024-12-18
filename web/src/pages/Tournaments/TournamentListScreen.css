@@ -24,6 +24,23 @@
   border-radius: 10px;
 }
 
+.list-table thead tr th{
+  background: linear-gradient(145deg, #2e86c1, #1c5a7a);
+  color: white;
+  text-align: left;
+  padding: 15px;
+  font-size: 1rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  transition: all 0.3s ease;
+}
+
+.list-table th:active {
+  transform: scale(1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
 .list-table th {
   background-color: #2e86c1;
   color: #fff;
@@ -76,6 +93,89 @@
   color: #d63031;
 }
 
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  color: #2d3436;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 90%;
+}
+
+.modal-content p {
+  margin: 10px;
+}
+
+.modal-title {
+  font-size: 20px;
+  margin-bottom: 15px;
+}
+
+.view-details-button {
+  padding: 12px 20px;
+  background: linear-gradient(145deg, #2e86c1, #1c5a7a);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.view-details-button:hover {
+  background: linear-gradient(145deg, #1c5a7a, #2e86c1);
+  box-shadow: 0 8px 14px rgba(0, 0, 0, 0.3);
+  transform: scale(1.05);
+}
+
+.view-details-button:active {
+  transform: scale(1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.close-modal-button {
+  padding: 12px 20px;
+  background: linear-gradient(145deg, #dc3545, #a71d2a);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.close-modal-button:hover {
+  background: linear-gradient(145deg, #a71d2a, #dc3545);
+  box-shadow: 0 8px 14px rgba(0, 0, 0, 0.3);
+  transform: scale(1.05);
+}
+
+.close-modal-button:active {
+  transform: scale(1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
 @media screen and (max-width: 600px) {
   .list-container {
     padding: 10px;
@@ -91,3 +191,4 @@
     font-size: 0.9rem;
   }
 }
+
