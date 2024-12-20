@@ -2,28 +2,38 @@ import React, { useState, useContext } from 'react';
 import { AuthContext } from "../context/AuthProvider";
 import TournamentFormScreen from './Tournaments/TournamentFormScreen';
 import TournamentListScreen from './Tournaments/TournamentListScreen';
-import "./Home.css"
+import "./Home.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faExpand, faCompress } from "@fortawesome/free-solid-svg-icons";
 
 const Home = () => {
   const { logout } = useContext(AuthContext);
-  const [showForm, setShowForm] = useState(true);
+  const [fullscreenComponent, setFullscreenComponent] = useState(null);
 
-  const toggleComponent = () => {
-    setShowForm((prevShowForm) => !prevShowForm);
+  const toggleFullscreen = (component) => {
+    setFullscreenComponent((prev) => (prev === component ? null : component));
   };
 
   return (
-    <div className="homepage-container">
+    <div className={`homepage-container ${fullscreenComponent ? 'fullscreen-active' : ''}`}>
       <button className="logout-button" onClick={logout}>Logout</button>
-      <div className="content-container">
-        <div className="component-container">
+      <div className={`content-container ${fullscreenComponent ? 'fullscreen-mode' : ''}`}>
+        <div className={`component-container ${fullscreenComponent === 'form' ? 'fullscreen' : ''}`}>
+          <button className="fullscreen-button" onClick={() => toggleFullscreen('form')}>
+            <FontAwesomeIcon icon={fullscreenComponent === 'form' ? faCompress : faExpand} />
+          </button>
           <TournamentFormScreen />
         </div>
-        <div className="component-container">
+        <div className={`component-container ${fullscreenComponent === 'list' ? 'fullscreen' : ''}`}>
+          <button className="fullscreen-button" onClick={() => toggleFullscreen('list')}>
+            <FontAwesomeIcon icon={fullscreenComponent === 'list' ? faCompress : faExpand} />
+          </button>
           <TournamentListScreen />
         </div>
-        <div className="component-container">
-
+        <div className={`component-container ${fullscreenComponent === 'profile' ? 'fullscreen' : ''}`}>
+          <button className="fullscreen-button" onClick={() => toggleFullscreen('profile')}>
+            <FontAwesomeIcon icon={fullscreenComponent === 'profile' ? faCompress : faExpand} />
+          </button>
         </div>
       </div>
     </div>
