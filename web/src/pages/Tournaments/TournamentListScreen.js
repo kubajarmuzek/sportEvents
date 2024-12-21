@@ -8,6 +8,7 @@ const TournamentListScreen = () => {
   const [error, setError] = useState('');
   const [selectedTournament, setSelectedTournament] = useState(null);
   const [detailsModalVisible, setDetailsModalVisible] = useState(false);
+  const [teams, setTeams] = useState([]);
 
   const fetchTournaments = async () => {
     try {
@@ -23,12 +24,30 @@ const TournamentListScreen = () => {
 
   const handleViewDetails = (tournament) => {
     setSelectedTournament(tournament);
+
+    // Mock data for teams - replace with API call later
+    const mockTeams = [
+      { id: 1, name: 'Team Alpha', members: ['Alice', 'Bob'] },
+      { id: 2, name: 'Team Beta', members: ['Charlie', 'Dave'] },
+    ];
+    setTeams(mockTeams);
+
     setDetailsModalVisible(true);
+  };
+
+  const handleSignUpForTeam = (teamId) => {
+    alert(`Signed up for team ID: ${teamId}`);
+  };
+
+  const handleCreateTeam = () => {
+    alert('Redirecting to Create Team Form...');
+    // Implement navigation or modal for team creation
   };
 
   const closeDetailsModal = () => {
     setDetailsModalVisible(false);
     setSelectedTournament(null);
+    setTeams([]);
   };
 
   useEffect(() => {
@@ -83,12 +102,48 @@ const TournamentListScreen = () => {
             <p><strong>Description:</strong> {selectedTournament.description || 'No description available'}</p>
             <p><strong>Max Teams:</strong> {selectedTournament.maxTeams}</p>
             <p><strong>Team Size:</strong> {selectedTournament.teamSize}</p>
+            <hr />
+
+            <h4>Teams</h4>
+            {teams.length > 0 ? (
+              <ul className="teams-list">
+                {teams.map((team) => (
+                  <li key={team.id} className="team-item">
+                    <strong>{team.name}</strong> (Members: {team.members.join(', ')})
+                    <button
+                      className="view-details-button"
+                      onClick={() => handleSignUpForTeam(team.id)}
+                    >
+                      Sign Up
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No teams available for this tournament</p>
+            )}
+            
+            <hr />
+
+            <div className="create-team-section">
+              <h4>Create a Team</h4>
+              <input
+                type="text"
+                className="team-name-input"
+                placeholder="Enter team name"
+              />  
+              <button className="view-details-button bigger" onClick={handleCreateTeam}>
+                Create a Team
+              </button>
+            </div>
+
             <button className="close-modal-button" onClick={closeDetailsModal}>
               Close
             </button>
           </div>
         </div>
       )}
+
     </div>
   );
 };

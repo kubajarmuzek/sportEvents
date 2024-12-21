@@ -1,5 +1,4 @@
 .list-container {
-  margin: 20px auto;
   padding: 20px;
   max-width: 100%;
   border-radius: 15px;
@@ -10,7 +9,6 @@
 .list-header {
   text-align: center;
   margin-bottom: 20px;
-  color: #2d3436;
   font-size: 1.5rem;
   font-weight: bold;
 }
@@ -66,7 +64,7 @@
 .loading,
 .error {
   text-align: center;
-  font-size: 1rem; 
+  font-size: 1rem;
   padding: 20px;
 }
 
@@ -76,6 +74,18 @@
 
 .error {
   color: #d63031;
+}
+
+.modal-content {
+  background: white;
+  color: #2d3436;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 90%;
+  width: 100%;
+  max-height: 80vh; 
+  overflow-y: auto; 
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
 }
 
 .modal-overlay {
@@ -91,53 +101,151 @@
   z-index: 1000;
 }
 
-.modal-content {
-  background: white;
-  color: #2d3436;
-  padding: 20px;
-  border-radius: 8px;
-  max-width: 90%;
-  width: 100%;
-}
-
 .modal-content p {
   margin: 10px;
 }
 
 .modal-title {
-  font-size: 18px; 
+  font-size: 18px;
   margin-bottom: 15px;
 }
 
 .view-details-button {
-  padding: 6px 8px; 
+  padding: 6px 8px;
   background: linear-gradient(145deg, #2e86c1, #1c5a7a);
   color: white;
   border: none;
   border-radius: 5px;
-  font-size: 0.6rem;
+  font-size: 0.65rem;
   font-weight: bold;
   cursor: pointer;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
   text-transform: uppercase;
   letter-spacing: 0.03em;
+  margin-bottom: 20px;
 }
 
+.view-details-button:hover {
+  background: linear-gradient(145deg, #1c5a7a, #2e86c1);
+  transform: scale(1.05);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}
+
+.view-details-button:active {
+  transform: scale(1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.form-button:focus {
+  outline: none;
+}
+
+
 .close-modal-button {
-  padding: 8px 12px;
-  background: linear-gradient(145deg, #dc3545, #a71d2a);
+  padding: 6px 8px;
+  background: linear-gradient(145deg, #c12e2e, #7a1c1c85);
   color: white;
   border: none;
   border-radius: 5px;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: bold;
   cursor: pointer;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
   text-transform: uppercase;
   letter-spacing: 0.03em;
+  margin-bottom: 20px;
 }
+
+.close-modal-button:hover {
+  background: linear-gradient(145deg, #7a1c1c85, #c12e2e);
+  transform: scale(1.05);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}
+
+.close-modal-button:active {
+  transform: scale(1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.teams-list {
+  list-style: none;
+  padding: 0;
+}
+
+.team-item {
+  margin: 10px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  border: 1px solid #e6e6e6;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+.team-item:hover {
+  background-color: #e7e7e7;  
+}
+
+.sign-up-button {
+  background-color: #2e86c1;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.sign-up-button:hover {
+  background-color: #2e86c1;
+}
+
+.create-team-button {
+  display: block;
+  margin: 15px 0;
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.create-team-button:hover {
+  background-color: #1e87f0;
+}
+
+.bigger {
+  font-size: 0.8rem;
+}
+
+hr {
+  border: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #00000057, #000000);
+  margin: 15px 0;
+}
+
+
+.create-team-section {
+  margin: 15px 0;
+}
+
+.team-name-input {
+  width: 30%;
+  padding: 8px;
+  margin: 10px 0;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 0.85rem;
+}
+
 
 @media screen and (max-width: 600px) {
   .list-container {
@@ -152,5 +260,16 @@
   .list-table td {
     padding: 6px;
     font-size: 0.75rem;
+  }
+
+  .modal-content {
+    padding: 15px;
+  }
+
+  .sign-up-button,
+  .create-team-button,
+  .close-modal-button {
+    font-size: 0.7rem;
+    padding: 5px 8px;
   }
 }

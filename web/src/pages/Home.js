@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import { AuthContext } from "../context/AuthProvider";
 import TournamentFormScreen from './Tournaments/TournamentFormScreen';
 import TournamentListScreen from './Tournaments/TournamentListScreen';
+import UserProfile from './Profile/UserProfile';
 import "./Home.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faExpand, faCompress } from "@fortawesome/free-solid-svg-icons";
@@ -34,6 +35,7 @@ const Home = () => {
           <button className="fullscreen-button" onClick={() => toggleFullscreen('profile')}>
             <FontAwesomeIcon icon={fullscreenComponent === 'profile' ? faCompress : faExpand} />
           </button>
+          <UserProfile/>
         </div>
       </div>
     </div>
