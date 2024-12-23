@@ -9,6 +9,7 @@ const TournamentListScreen = () => {
   const [selectedTournament, setSelectedTournament] = useState(null);
   const [detailsModalVisible, setDetailsModalVisible] = useState(false);
   const [teams, setTeams] = useState([]);
+  const [teamName, setTeamName] = useState('');
 
   const fetchTournaments = async () => {
     try {
@@ -22,26 +23,57 @@ const TournamentListScreen = () => {
     }
   };
 
+  const fetchTeams = async (tournamentId) => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/tournaments/${tournamentId}/teams`);
+      setTeams(response.data);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to fetch teams');
+    }
+  };
+
   const handleViewDetails = (tournament) => {
     setSelectedTournament(tournament);
-
-    // Mock data for teams - replace with API call later
-    const mockTeams = [
-      { id: 1, name: 'Team Alpha', members: ['Alice', 'Bob'] },
-      { id: 2, name: 'Team Beta', members: ['Charlie', 'Dave'] },
-    ];
-    setTeams(mockTeams);
-
+    fetchTeams(tournament.id);
     setDetailsModalVisible(true);
   };
 
-  const handleSignUpForTeam = (teamId) => {
-    alert(`Signed up for team ID: ${teamId}`);
+  const handleSignUpForTeam = async (teamId) => {
+    try {
+      const userId = localStorage.getItem('id');
+      await axios.post('http://localhost:5000/api/tournaments/signup', {
+        userId,
+        tournamentId: selectedTournament.id,
+        teamId,
+      });
+      alert('Signed up successfully!');
+    } catch (err) {
+      console.error(err);
+      alert('Failed to sign up for the team');
+    }
   };
 
-  const handleCreateTeam = () => {
-    alert('Redirecting to Create Team Form...');
-    // Implement navigation or modal for team creation
+  const handleCreateTeam = async () => {
+    if (!teamName) {
+      alert('Team name is required');
+      return;
+    }
+
+    try {
+      const userId = localStorage.getItem('id');
+      console.log(userId);
+      await axios.post(`http://localhost:5000/api/tournaments/${selectedTournament.id}/teams`, {
+        name: teamName,
+        leaderId: userId,
+      });
+      alert('Team created successfully!');
+      setTeamName('');
+      fetchTeams(selectedTournament.id);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to create the team');
+    }
   };
 
   const closeDetailsModal = () => {
@@ -109,7 +141,7 @@ const TournamentListScreen = () => {
               <ul className="teams-list">
                 {teams.map((team) => (
                   <li key={team.id} className="team-item">
-                    <strong>{team.name}</strong> (Members: {team.members.join(', ')})
+                    <strong>{team.name}</strong>
                     <button
                       className="view-details-button"
                       onClick={() => handleSignUpForTeam(team.id)}
@@ -131,6 +163,8 @@ const TournamentListScreen = () => {
                 type="text"
                 className="team-name-input"
                 placeholder="Enter team name"
+                value={teamName}
+                onChange={(e) => setTeamName(e.target.value)}
               />  
               <button className="view-details-button bigger" onClick={handleCreateTeam}>
                 Create a Team
@@ -143,7 +177,6 @@ const TournamentListScreen = () => {
           </div>
         </div>
       )}
-
     </div>
   );
 };
