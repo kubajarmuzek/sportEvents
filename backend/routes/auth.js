@@ -2,10 +2,16 @@ const express = require('express');
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
+const { body, validationResult } = require('express-validator');
 
 require('dotenv').config();
 
-router.post('/register', async (req, res) => {
+router.post('/register',[ 
+  body('email').isEmail().withMessage('Invalid email format'),
+] ,async (req, res) => {const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
   const { email, password, nickname, gender, birthDate } = req.body;  
   try {
     let user = await User.findOne({ where: { email } });

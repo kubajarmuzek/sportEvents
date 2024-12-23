@@ -44,19 +44,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.post('/signup', async (req, res) => {
-  const { userId, tournamentId, teamId } = req.body;
-
-  try {
-    const participant = await Participant.create({ userId, tournamentId, teamId });
-    res.status(201).json(participant);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error signing up for tournament' });
-  }
-});
-
-
 router.get('/:id/participants', async (req, res) => {
   const tournamentId = req.params.id;
 
@@ -78,6 +65,13 @@ router.post('/:tournamentId/teams', async (req, res) => {
   const { tournamentId } = req.params;
 
   try {
+    const tournament = await Tournament.findByPk(tournamentId);
+    const teamCount = await Team.count({ where: { tournamentId } });
+    
+    if (teamCount >= tournament.maxTeams) {
+      return res.status(400).json({ message: 'Tournament is full' });
+    }
+
     const team = await Team.create({ name, leaderId, tournamentId });
     res.status(201).json(team);
   } catch (error) {
@@ -98,7 +92,33 @@ router.get('/:tournamentId/teams', async (req, res) => {
   }
 });
 
+router.post('/signup', async (req, res) => {
+  const { userId, tournamentId, teamId } = req.body;
 
+  try {
+    const existingParticipant = await Participant.findOne({
+      where: { userId, tournamentId, teamId }
+    });
+
+    if (existingParticipant) {
+      return res.status(400).json({ message: 'User is already signed up for this team in the tournament' });
+    }
+
+   
+    const team = await Team.findByPk(teamId);
+    const participantCount = await Participant.count({ where: { teamId } });
+
+    if (participantCount >= team.teamSize) {
+      return res.status(400).json({ message: 'Team is full' });
+    }
+
+    const participant = await Participant.create({ userId, tournamentId, teamId });
+    res.status(201).json(participant);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error signing up for tournament' });
+  }
+});
 
 
 module.exports = router;
