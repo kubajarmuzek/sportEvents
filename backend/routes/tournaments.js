@@ -44,22 +44,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.get('/:id/participants', async (req, res) => {
-  const tournamentId = req.params.id;
-
-  try {
-      const participants = await Participant.findAll({
-          where: { tournamentId },
-          include: [{ model: User, as: 'user' }],
-      });
-      console.log(participants)
-      res.status(200).json(participants);
-  } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Error fetching participants' });
-  }
-});
-
 router.post('/:tournamentId/teams', async (req, res) => {
   const { name, leaderId } = req.body;
   const { tournamentId } = req.params;
@@ -119,6 +103,18 @@ router.post('/signup', async (req, res) => {
     res.status(500).json({ message: 'Error signing up for tournament' });
   }
 });
+
+router.get('/:tournamentId/teams', async (req, res) => {
+  try {
+    const { tournamentId } = req.params;
+    const teams = await Team.findAll({ where: { tournamentId } });
+    res.json(teams);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Failed to fetch teams' });
+  }
+});
+
 
 
 module.exports = router;

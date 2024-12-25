@@ -83,8 +83,8 @@
   border-radius: 8px;
   max-width: 90%;
   width: 100%;
-  max-height: 80vh; 
-  overflow-y: auto; 
+  max-height: 80vh;
+  overflow-y: auto;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
 }
 
@@ -141,7 +141,6 @@
   outline: none;
 }
 
-
 .close-modal-button {
   padding: 6px 8px;
   background: linear-gradient(145deg, #c12e2e, #7a1c1c85);
@@ -174,19 +173,22 @@
   padding: 0;
 }
 
+.team {
+  border: 1px solid #e6e6e6;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+.team:hover {
+  background-color: #e7e7e7;
+}
+
 .team-item {
   margin: 10px 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 8px;
-  border: 1px solid #e6e6e6;
-  border-radius: 5px;
-  background-color: #f9f9f9;
-}
-
-.team-item:hover {
-  background-color: #e7e7e7;  
 }
 
 .sign-up-button {
@@ -232,7 +234,6 @@ hr {
   margin: 15px 0;
 }
 
-
 .create-team-section {
   margin: 15px 0;
 }
@@ -246,6 +247,28 @@ hr {
   font-size: 0.85rem;
 }
 
+.team-actions {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.participants-section {
+  margin-top: 20px;
+  margin-bottom: 15px;
+}
+
+.participants-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.participants-list p {
+  margin: 5px;
+  font-size: 16px;
+  font-weight: bold;
+}
 
 @media screen and (max-width: 600px) {
   .list-container {
