@@ -23,6 +23,11 @@ const Participant = sequelize.define('Participant', {
         key: 'id',
       },
     },
+    statusUser: {
+      type: DataTypes.ENUM('waiting','approved','rejected'),
+      allowNull: false,
+      defaultValue: 'waiting',
+    },
   });
 
   Participant.associate = (models) => {

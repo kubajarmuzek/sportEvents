@@ -3,6 +3,7 @@ const sequelize = require('./config/database');
 const User = require('./models/User');
 const Tournament = require('./models/Tournament')
 const Teams=require('./models/Team')
+const Participant=require('./models/Participant')
 const dotenv = require('dotenv');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -23,6 +24,7 @@ app.use('/api/tournaments', require('./routes/tournaments'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/sports', require('./routes/sports'));
 app.use('/api/teams', require('./routes/teams'));
+app.use('/api/participants',require('./routes/participants'));
 
 const PORT = process.env.PORT || 5000;
 

@@ -51,7 +51,16 @@ router.post('/:tournamentId/teams', async (req, res) => {
   try {
     const tournament = await Tournament.findByPk(tournamentId);
     const teamCount = await Team.count({ where: { tournamentId } });
+    const leader= await User.findByPk(leaderId);
+
+    if(!leader){
+      return res.status(404).json({message: 'Leader not found'});
+    }
     
+    if(!tournament){
+      return res.status(404).json({message: 'Tournament not found'});
+    }
+
     if (teamCount >= tournament.maxTeams) {
       return res.status(400).json({ message: 'Tournament is full' });
     }
@@ -96,7 +105,7 @@ router.post('/signup', async (req, res) => {
       return res.status(400).json({ message: 'Team is full' });
     }
 
-    const participant = await Participant.create({ userId, tournamentId, teamId });
+    const participant = await Participant.create({ userId, tournamentId, teamId, statusUser: 'waiting' });
     res.status(201).json(participant);
   } catch (error) {
     console.error(error);
