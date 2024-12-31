@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
+const Participant = require('./Participant');
 
 const Team = sequelize.define('Team', {
   name: {
@@ -32,5 +33,4 @@ Team.associate = (models) => {
     as: 'members',
   });
 };
-
 module.exports = Team;

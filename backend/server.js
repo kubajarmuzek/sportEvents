@@ -20,9 +20,9 @@ app.use(cors({
 app.use(bodyParser.json());
 
 app.use('/api/auth', require('./routes/auth'));
-app.use('/api/tournaments', require('./routes/tournaments'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/sports', require('./routes/sports'));
+app.use('/api/tournaments', require('./routes/tournaments'));
 app.use('/api/teams', require('./routes/teams'));
 app.use('/api/participants',require('./routes/participants'));
 

@@ -2,7 +2,7 @@ const { DataTypes } = require("sequelize");
 const bcrypt = require("bcryptjs");
 const sequelize = require("../config/database");
 const Tournament = require("./Tournament");
-const Participant = require("./Participant"); // Import the Participant model
+const Participant = require("./Participant"); 
 
 const User = sequelize.define(
   "User",

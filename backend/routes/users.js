@@ -1,6 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User'); 
+const User = require('../models/User');
+const Tournament=require('../models/Tournament'); 
+const Participant = require('../models/Participant');
+const Team=require('../models/Team');
+
+require('dotenv').config();
 
 router.get('/:id/nickname', async (req, res) => {
   try {
@@ -16,5 +21,69 @@ router.get('/:id/nickname', async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err });
   }
 });
+
+router.get('/:userId/organized-tournaments',async (req,res)=>{
+  try{
+    const userId=req.params.userId;
+    const currentDate=new Date();
+
+    const organizedTournaments=await Tournament.findAll({
+      where: {organizerId: userId},
+      attributes: ['id','name','startDate','endDate'],
+    });
+    const pastOrganized = organizedTournaments.filter(
+      (t)=>t.endDate && new Date(t.endDate)<currentDate
+    );
+    const upcomingOrganized = organizedTournaments.filter(
+      (t)=>!t.endDate || new Date(t.endDate)>=currentDate
+    );
+    res.json({
+      past: pastOrganized,
+      upcoming: upcomingOrganized,
+    });
+  } catch (err){
+    res.status(500).json({message : 'Server error', error: err});
+  }
+});
+
+router.get('/:userId/participated-tournaments', async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const currentDate = new Date();
+
+    const participatedTournaments = await Participant.findAll({
+      where: {
+        userId,
+        statusUser: 'approved', 
+      },
+      include: [
+        {
+          model: Tournament,
+          attributes: ['id', 'name', 'startDate', 'endDate'],
+          as: 'tournament', 
+        },
+      ],
+    });
+
+    const pastParticipated = participatedTournaments.filter((participant) => {
+      const tournament = participant.tournament;
+      return tournament.endDate && new Date(tournament.endDate) < currentDate;
+    });
+
+    const upcomingParticipated = participatedTournaments.filter((participant) => {
+      const tournament = participant.tournament;
+      return !tournament.endDate || new Date(tournament.endDate) >= currentDate;
+    });
+
+    res.json({
+      past: pastParticipated.map((p) => p.tournament),
+      upcoming: upcomingParticipated.map((p) => p.tournament),
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error', error: err });
+  }
+});
+
 
 module.exports = router;

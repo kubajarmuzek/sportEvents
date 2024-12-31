@@ -54,8 +54,8 @@ const Tournament = sequelize.define('Tournament', {
 
 Tournament.associate = (models) => {
   Tournament.hasMany(models.Participant, {
-      foreignKey: 'tournamentId',
-      as: 'participants',
+    foreignKey: 'tournamentId',
+    as: 'participants', 
   });
 };
 
