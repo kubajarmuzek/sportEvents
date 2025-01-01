@@ -11,7 +11,7 @@ const UserProfile = () => {
 
   const fetchTournaments = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/users/${userId}/organized-tournaments`);
+      const response = await axios.get(`http://localhost:5000/api/users/${userId}/participated-tournaments`);
       console.log(response)
       setUpcomingTournaments(response.data.upcoming);
       setPastTournaments(response.data.past);
@@ -46,6 +46,17 @@ const UserProfile = () => {
       setPendingApprovals((prev) => prev.filter((participant) => participant.id !== participantId));
     } catch (error) {
       console.error("Error rejecting participant:", error);
+    }
+  };
+
+  const handleSignOut = async (participantId) => {
+    try {
+      await axios.delete(`http://localhost:5000/api/participants/${participantId}/signout`);
+      setUpcomingTournaments((prev) =>
+        prev.filter((tournament) => tournament.id !== participantId)
+      );
+    } catch (error) {
+      console.error("Error signing out from tournament:", error);
     }
   };
 
@@ -104,6 +115,12 @@ const UserProfile = () => {
                   {new Date(tournament.startDate).toLocaleDateString()} -{" "}
                   {tournament.endDate ? new Date(tournament.endDate).toLocaleDateString() : "TBA"}
                 </span>
+                <button
+                  className="signout-button"
+                  onClick={() => handleSignOut(tournament.id)}
+                >
+                  Sign Out
+                </button>
               </li>
             ))}
           </ul>

@@ -119,6 +119,28 @@ router.get('/pending-approvals/:leaderId', async (req, res) => {
     }
 });
 
+router.delete('/:participantId/signout', async (req, res) => {
+    const { participantId } = req.params;
+  
+    try {
+      const participant = await Participant.findByPk(participantId);
+  
+      if (!participant) {
+        return res.status(404).json({ message: 'Participant not found' });
+      }
+  
+      if (participant.statusUser !== 'approved') {
+        return res.status(400).json({ message: 'You cannot sign out because you are not approved' });
+      }
+  
+      await participant.destroy();
+      res.status(200).json({ message: 'Successfully signed out from the tournament' });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Error signing out from the tournament' });
+    }
+  });
+
 
 
 module.exports=router;
