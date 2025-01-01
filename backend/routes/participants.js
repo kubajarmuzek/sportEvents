@@ -11,19 +11,21 @@ require('dotenv').config();
 router.put('/:participantId/approve',async(req,res)=>{
     const{participantId}=req.params;
     const{leaderId}=req.body;
-
+    console.log(leaderId)
     try{
         const participant=await Participant.findByPk(participantId);
+        console.log(participant)
         if(!participant){
             return res.status(404).json({message: 'Participant not found'});
         }
 
         const team=await Team.findByPk(participant.teamId);
+        console.log(team)
         if(!team){
             return res.status(404).json({message: 'Team not found'});
         }
 
-        if(team.leaderId!==leaderId){
+        if(team.leaderId!=leaderId){
             return res.status(403).json({message: 'Only the team captain can approve participants'});
         }
 
