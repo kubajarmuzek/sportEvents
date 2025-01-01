@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const Participant = require('../models/Participant');
 const Team = require('../models/Team');
+const User = require('../models/User');
+const Tournament = require('../models/Tournament');
 
 
 require('dotenv').config();
@@ -83,10 +85,34 @@ router.get('/pending-approvals/:leaderId', async (req, res) => {
             where: {
                 teamId: teamIds,
                 statusUser: 'waiting'
-            }
+            },
+            include: [
+                {
+                    model: User,
+                    as: 'user', 
+                    attributes: ['nickname']
+                },
+                {
+                    model: Tournament,
+                    as: 'tournament',
+                    attributes: ['name']
+                }
+            ]
         });
 
-        res.status(200).json(pendingParticipants);
+        if (!pendingParticipants.length) {
+            return res.status(404).json({ message: 'No pending approvals found' });
+        }
+
+        const formattedResponse = pendingParticipants.map(participant => ({
+            id: participant.id,
+            participantName: participant.user.nickname,
+            tournamentName: participant.tournament.name, 
+            teamId: participant.teamId,
+            statusUser: participant.statusUser
+        }));
+
+        res.status(200).json(formattedResponse);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Error fetching pending approvals' });
