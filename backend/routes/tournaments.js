@@ -97,7 +97,6 @@ router.post('/signup', async (req, res) => {
       return res.status(400).json({ message: 'User is already signed up for this team in the tournament' });
     }
 
-   
     const team = await Team.findByPk(teamId);
     const participantCount = await Participant.count({ where: { teamId } });
 

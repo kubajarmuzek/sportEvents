@@ -66,4 +66,33 @@ router.put('/:participantId/reject',async(req,res)=>{
     }
 });
 
+
+router.get('/pending-approvals/:leaderId', async (req, res) => {
+    const { leaderId } = req.params;
+
+    try {
+        const teams = await Team.findAll({ where: { leaderId } });
+
+        if (!teams.length) {
+            return res.status(404).json({ message: 'No teams found for this leader' });
+        }
+
+        const teamIds = teams.map(team => team.id);
+
+        const pendingParticipants = await Participant.findAll({
+            where: {
+                teamId: teamIds,
+                statusUser: 'waiting'
+            }
+        });
+
+        res.status(200).json(pendingParticipants);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error fetching pending approvals' });
+    }
+});
+
+
+
 module.exports=router;

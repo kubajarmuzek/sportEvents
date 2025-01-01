@@ -10,7 +10,7 @@ router.get('/:teamId/participants', async (req, res) => {
       const { teamId } = req.params;
       const participants = await Participant.findAll({
         where: { teamId },
-        include: [{ model: User, attributes: ['id', 'nickname'], as: 'user' }], // Include alias
+        include: [{ model: User, attributes: ['id', 'nickname'], as: 'user' }],
       });
       res.json(participants);
     } catch (err) {
