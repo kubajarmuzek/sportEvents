@@ -5,12 +5,24 @@ import "./UserProfile.css";
 const UserProfile = () => {
   const [pendingApprovals, setPendingApprovals] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [upcomingTournaments, setUpcomingTournaments] = useState([]);
+  const [pastTournaments, setPastTournaments] = useState([]);
   const userId = localStorage.getItem("id");
+
+  const fetchTournaments = async () => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/users/${userId}/organized-tournaments`);
+      console.log(response)
+      setUpcomingTournaments(response.data.upcoming);
+      setPastTournaments(response.data.past);
+    } catch (error) {
+      console.error("Error fetching tournaments:", error);
+    }
+  };
 
   const fetchPendingApprovals = async () => {
     try {
       const response = await axios.get(`http://localhost:5000/api/participants/pending-approvals/${userId}`);
-      console.log(response)
       setPendingApprovals(response.data);
     } catch (error) {
       console.error("Error fetching pending approvals:", error);
@@ -38,6 +50,7 @@ const UserProfile = () => {
   };
 
   useEffect(() => {
+    fetchTournaments()
     fetchPendingApprovals();
   }, []);
 
@@ -78,6 +91,43 @@ const UserProfile = () => {
             </ul>
           )}
         </div>
+        <div className="profile-tournaments">
+        <h2 className="section-headers">Upcoming Tournaments</h2>
+        {upcomingTournaments.length === 0 ? (
+          <p>No upcoming tournaments</p>
+        ) : (
+          <ul className="tournament-list">
+            {upcomingTournaments.map((tournament) => (
+              <li key={tournament.id} className="tournament-item">
+                <strong>{tournament.name}</strong>
+                <span>
+                  {new Date(tournament.startDate).toLocaleDateString()} -{" "}
+                  {tournament.endDate ? new Date(tournament.endDate).toLocaleDateString() : "TBA"}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <div className="profile-tournaments">
+        <h2 className="section-headers">Past Tournaments</h2>
+        {pastTournaments.length === 0 ? (
+          <p className="tournament-item">No past tournaments</p>
+        ) : (
+          <ul className="tournament-list">
+            {pastTournaments.map((tournament) => (
+              <li key={tournament.id} className="tournament-item">
+                <strong>{tournament.name}</strong>
+                <span>
+                  {new Date(tournament.startDate).toLocaleDateString()} -{" "}
+                  {tournament.endDate ? new Date(tournament.endDate).toLocaleDateString() : "TBA"}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 };
