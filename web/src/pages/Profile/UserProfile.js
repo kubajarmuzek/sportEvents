@@ -7,14 +7,25 @@ const UserProfile = () => {
   const [loading, setLoading] = useState(true);
   const [upcomingTournaments, setUpcomingTournaments] = useState([]);
   const [pastTournaments, setPastTournaments] = useState([]);
+  const [upcomingOrganizedTournaments, setOrganizedUpcomingTournaments] = useState([]);
+  const [pastOrganizedTournaments, setOrganizedPastTournaments] = useState([]);
   const userId = localStorage.getItem("id");
 
   const fetchTournaments = async () => {
     try {
       const response = await axios.get(`http://localhost:5000/api/users/${userId}/participated-tournaments`);
-      console.log(response)
       setUpcomingTournaments(response.data.upcoming);
       setPastTournaments(response.data.past);
+    } catch (error) {
+      console.error("Error fetching tournaments:", error);
+    }
+  };
+
+  const fetchOrganizedTournaments = async () => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/users/${userId}/organized-tournaments`);
+      setOrganizedUpcomingTournaments(response.data.upcoming);
+      setOrganizedPastTournaments(response.data.past);
     } catch (error) {
       console.error("Error fetching tournaments:", error);
     }
@@ -63,6 +74,7 @@ const UserProfile = () => {
   useEffect(() => {
     fetchTournaments()
     fetchPendingApprovals();
+    fetchOrganizedTournaments();
   }, []);
 
   if (loading) {
@@ -134,6 +146,50 @@ const UserProfile = () => {
         ) : (
           <ul className="tournament-list">
             {pastTournaments.map((tournament) => (
+              <li key={tournament.id} className="tournament-item">
+                <strong>{tournament.name}</strong>
+                <span>
+                  {new Date(tournament.startDate).toLocaleDateString()} -{" "}
+                  {tournament.endDate ? new Date(tournament.endDate).toLocaleDateString() : "TBA"}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <div className="profile-tournaments">
+        <h2 className="section-headers">Upcoming Organized Tournaments</h2>
+        {upcomingOrganizedTournaments.length === 0 ? (
+          <p>No upcoming tournaments</p>
+        ) : (
+          <ul className="tournament-list">
+            {upcomingOrganizedTournaments.map((tournament) => (
+              <li key={tournament.id} className="tournament-item">
+                <strong>{tournament.name}</strong>
+                <span>
+                  {new Date(tournament.startDate).toLocaleDateString()} -{" "}
+                  {tournament.endDate ? new Date(tournament.endDate).toLocaleDateString() : "TBA"}
+                </span>
+                <button
+                  className="signout-button"
+                  onClick={() => handleSignOut(tournament.id)}
+                >
+                  Sign Out
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <div className="profile-tournaments">
+        <h2 className="section-headers">Past Organized Tournaments</h2>
+        {pastOrganizedTournaments.length === 0 ? (
+          <p className="tournament-item">No past tournaments</p>
+        ) : (
+          <ul className="tournament-list">
+            {pastOrganizedTournaments.map((tournament) => (
               <li key={tournament.id} className="tournament-item">
                 <strong>{tournament.name}</strong>
                 <span>
