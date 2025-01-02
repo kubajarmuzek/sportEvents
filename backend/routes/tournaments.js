@@ -123,4 +123,22 @@ router.get('/:tournamentId/teams', async (req, res) => {
   }
 });
 
+router.delete('/:tournamentId/delete',async(req,res)=>{
+  try {
+    const { tournamentId }=req.params;
+    const deletedTournament=await Tournament.destroy({
+      where: {id:tournamentId},
+    })
+
+    if(!deletedTournament){
+      return res.status(404).json({message:'Tournament not found'});
+    }
+
+    res.status(200).json({message: 'Tournament deleted successfully'});
+
+  }catch (err){
+    res.status(500).json({message:'Failed to remove the team',error:err})
+  }
+});
+
 module.exports = router;
