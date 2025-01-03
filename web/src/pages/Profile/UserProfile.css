@@ -1,117 +1,164 @@
 .profile-container {
-    padding: 20px;
-    max-width: 100%;
-    border-radius: 15px;
-    font-family: "Roboto", sans-serif;
-    overflow-x: auto;
-  }
-
-.section-headers {
-    text-align: center;
-    margin-bottom: 20px;
-    font-size: 1.5rem;
-    font-weight: bold;
-}
-
-.profile-container {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
   padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  border-radius: 15px;
+  font-family: "Roboto", sans-serif;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  overflow-x: hidden;
 }
 
 .profile-tournaments,
 .profile-stats,
 .profile-info,
 .profile-requests {
-  background: #f8f8f8;
-  border-radius: 8px;
+  background: #ffffff;
+  border-radius: 12px;
   padding: 15px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  margin-bottom: 20px;
+  transition: transform 0.2s ease;
+}
+
+.profile-tournaments:hover,
+.profile-requests:hover {
+  transform: translateY(-5px);
 }
 
 .section-headers {
   font-size: 1.5rem;
-  color: #333;
+  font-weight: bold;
   margin-bottom: 10px;
-  text-align: left;
+  text-align: center;
+  border-bottom: 2px solid #e0e0e0;
+  padding-bottom: 5px;
 }
 
 .loading {
   color: #999;
   font-size: 1.2rem;
+  text-align: center;
 }
 
-.approval-list {
-  list-style-type: none;
-  padding: 0;
-}
-
-.approval-item {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-.approve-button {
-  background-color: #4caf50;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  margin-right: 5px;
-  border-radius: 3px;
-  cursor: pointer;
-}
-
-.reject-button {
-  background-color: #f44336;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 3px;
-  cursor: pointer;
-}
-
-.approve-button:hover {
-  background-color: #45a049;
-}
-
-.reject-button:hover {
-  background-color: #d32f2f;
-}
-
-.profile-tournaments {
-  margin-top: 20px;
-}
-
-.section-headers {
-  font-size: 1.5rem;
-  margin-bottom: 10px;
-}
-
+.approval-list,
 .tournament-list {
   list-style-type: none;
   padding: 0;
+  margin: 0;
 }
 
+.approval-item,
 .tournament-item {
-  margin: 10px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 10px;
-  background-color: #f4f4f4;
-  border-radius: 5px;
+  margin-bottom: 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #fafafa;
+  transition: box-shadow 0.2s ease;
 }
 
-.tournament-item strong {
+.approval-item:hover,
+.tournament-item:hover {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.approval-actions,
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+.approve-button,
+.reject-button,
+.signout-button,
+.delete-button {
+  padding: 6px 8px;
+  background: linear-gradient(145deg, #4caf50, #2e7d32);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
   margin-right: 5px;
-  font-size: 1.2rem;
+}
+
+.approve-button:hover,
+.reject-button:hover,
+.signout-button:hover,
+.delete-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}
+
+.approve-button:active,
+.reject-button:active,
+.signout-button:active,
+.delete-button:active {
+  transform: scale(1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Specific colors for reject, sign-out, and delete buttons */
+.reject-button {
+  background: linear-gradient(145deg, #f44336, #d32f2f);
+}
+
+.reject-button:hover {
+  background: linear-gradient(145deg, #d32f2f, #f44336);
+}
+
+.signout-button {
+  background: linear-gradient(145deg, #ff9800, #e65100);
+}
+
+.signout-button:hover {
+  background: linear-gradient(145deg, #e65100, #ff9800);
+}
+
+.delete-button {
+  background: linear-gradient(145deg, #c12e2e, #7a1c1c);
+}
+
+.delete-button:hover {
+  background: linear-gradient(145deg, #7a1c1c, #c12e2e);
+}
+
+
+/* Tournament Info */
+.tournament-item strong {
+  font-size: 1.1rem;
+  margin-right: 5px;
+  color: #333;
 }
 
 .tournament-item span {
   font-size: 1rem;
   color: #777;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .profile-container {
+    padding: 10px;
+  }
+
+  .approval-item,
+  .tournament-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .approval-actions,
+  .actions {
+    justify-content: flex-start;
+  }
 }

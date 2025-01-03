@@ -71,6 +71,25 @@ const UserProfile = () => {
     }
   };
 
+  const handleDeleteTournament = async (tournamentId) => {
+    if (window.confirm("Are you sure you want to delete this tournament?")) {
+      try {
+        await axios.delete(`http://localhost:5000/api/tournaments/${tournamentId}/delete`);
+        setOrganizedUpcomingTournaments((prev) =>
+          prev.filter((tournament) => tournament.id !== tournamentId)
+        );
+        setOrganizedPastTournaments((prev) =>
+          prev.filter((tournament) => tournament.id !== tournamentId)
+        );
+        alert("Tournament deleted successfully");
+      } catch (error) {
+        console.error("Error deleting tournament:", error);
+        alert("Failed to delete tournament");
+      }
+    }
+  };
+
+
   useEffect(() => {
     fetchTournaments()
     fetchPendingApprovals();
@@ -84,37 +103,37 @@ const UserProfile = () => {
   return (
     <div className="profile-container">
       <div className="profile-requests">
-          <h2 className="section-headers">Pending Approvals</h2>
-          {pendingApprovals.length === 0 ? (
-            <p>No pending approvals</p>
-          ) : (
-            <ul className="approval-list">
-              {pendingApprovals.map((participant) => (
-                <li key={participant.id} className="approval-item">
-                  <span>
-                    <strong>{participant.participantName}</strong> requested to join{" "}
-                    <strong>{participant.tournamentName}</strong>
-                  </span>
-                  <div className="approval-actions">
-                    <button
-                      className="approve-button"
-                      onClick={() => handleApproval(participant.id)}
-                    >
-                      Approve
-                    </button>
-                    <button
-                      className="reject-button"
-                      onClick={() => handleRejection(participant.id)}
-                    >
-                      Reject
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-        <div className="profile-tournaments">
+        <h2 className="section-headers">Pending Approvals</h2>
+        {pendingApprovals.length === 0 ? (
+          <p>No pending approvals</p>
+        ) : (
+          <ul className="approval-list">
+            {pendingApprovals.map((participant) => (
+              <li key={participant.id} className="approval-item">
+                <span>
+                  <strong>{participant.participantName}</strong> requested to join{" "}
+                  <strong>{participant.tournamentName}</strong>
+                </span>
+                <div className="approval-actions">
+                  <button
+                    className="approve-button"
+                    onClick={() => handleApproval(participant.id)}
+                  >
+                    Approve
+                  </button>
+                  <button
+                    className="reject-button"
+                    onClick={() => handleRejection(participant.id)}
+                  >
+                    Reject
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      <div className="profile-tournaments">
         <h2 className="section-headers">Upcoming Tournaments</h2>
         {upcomingTournaments.length === 0 ? (
           <p>No upcoming tournaments</p>
@@ -124,8 +143,7 @@ const UserProfile = () => {
               <li key={tournament.id} className="tournament-item">
                 <strong>{tournament.name}</strong>
                 <span>
-                  {new Date(tournament.startDate).toLocaleDateString()} -{" "}
-                  {tournament.endDate ? new Date(tournament.endDate).toLocaleDateString() : "TBA"}
+                  {new Date(tournament.startDate).toLocaleDateString()}
                 </span>
                 <button
                   className="signout-button"
@@ -149,8 +167,7 @@ const UserProfile = () => {
               <li key={tournament.id} className="tournament-item">
                 <strong>{tournament.name}</strong>
                 <span>
-                  {new Date(tournament.startDate).toLocaleDateString()} -{" "}
-                  {tournament.endDate ? new Date(tournament.endDate).toLocaleDateString() : "TBA"}
+                  {new Date(tournament.startDate).toLocaleDateString()}
                 </span>
               </li>
             ))}
@@ -168,15 +185,16 @@ const UserProfile = () => {
               <li key={tournament.id} className="tournament-item">
                 <strong>{tournament.name}</strong>
                 <span>
-                  {new Date(tournament.startDate).toLocaleDateString()} -{" "}
-                  {tournament.endDate ? new Date(tournament.endDate).toLocaleDateString() : "TBA"}
+                  {new Date(tournament.startDate).toLocaleDateString()} 
                 </span>
-                <button
-                  className="signout-button"
-                  onClick={() => handleSignOut(tournament.id)}
-                >
-                  Sign Out
-                </button>
+                <div className="actions">
+                  <button
+                    className="delete-button"
+                    onClick={() => handleDeleteTournament(tournament.id)}
+                  >
+                    Delete
+                  </button>
+                </div>
               </li>
             ))}
           </ul>
@@ -193,8 +211,7 @@ const UserProfile = () => {
               <li key={tournament.id} className="tournament-item">
                 <strong>{tournament.name}</strong>
                 <span>
-                  {new Date(tournament.startDate).toLocaleDateString()} -{" "}
-                  {tournament.endDate ? new Date(tournament.endDate).toLocaleDateString() : "TBA"}
+                  {new Date(tournament.startDate).toLocaleDateString()}
                 </span>
               </li>
             ))}
