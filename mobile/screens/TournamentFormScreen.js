@@ -14,7 +14,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import config from "react-native-config";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
-const TournamentFormScreen = () => {
+
+const TournamentFormScreen = ({navigation}) => {
   const [name, setName] = useState("");
   const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
@@ -100,7 +101,7 @@ const TournamentFormScreen = () => {
       setLoading(true);
 
       const response = await axios.post(
-        "http://10.0.2.2:5000/api/tournaments",
+        "http://192.168.0.143:5000/api/tournaments",
         {
           name,
           startDate: startDate.toISOString(),
@@ -115,6 +116,17 @@ const TournamentFormScreen = () => {
 
       if (response.status === 201) {
         Alert.alert("Success", "Tournament added successfully");
+
+        setName("");
+        setLocation("");
+        setDescription("");
+        setMaxTeams("");
+        setTeamSize("");
+        setSport("");
+        setLocationInput("");
+        setSuggestions([]);
+        setStartDate(new Date());
+
       } else {
         Alert.alert("Error", "Unexpected response from server");
       }
@@ -123,6 +135,7 @@ const TournamentFormScreen = () => {
       Alert.alert("Error", "Failed to add tournament");
     } finally {
       setLoading(false);
+
     }
   };
 
@@ -144,6 +157,7 @@ const TournamentFormScreen = () => {
     setShowPicker(false);
     setStartDate(currentDate);
   };
+
 
   return (
     <View style={styles.container}>

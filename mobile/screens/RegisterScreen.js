@@ -2,12 +2,16 @@ import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import RNPickerSelect from 'react-native-picker-select';
+
 
 
 const RegisterScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [nickname, setNickname] = useState("");
+  const [gender, setGender] = useState("");
+  const [birthDate, setBirthDate] = useState("");
   const [error, setError] = useState('');
   const [emailFocused, setEmailFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
@@ -19,7 +23,9 @@ const RegisterScreen = ({ navigation }) => {
       const res = await axios.post('http://10.0.2.2:5000/api/auth/register', {
         email,
         password,
-        nickname, 
+        nickname,
+        gender,
+        birthDate,
       });
 
       await AsyncStorage.setItem('nickname', nickname);
@@ -55,6 +61,34 @@ const RegisterScreen = ({ navigation }) => {
           onBlur={() => setNicknameFocused(false)}
           style={[styles.input, nicknameFocused && styles.inputFocused]}
         />
+
+        <RNPickerSelect
+            selectedValue={gender}
+            onValueChange={(itemValue) => setGender(itemValue)}
+            style={{
+              inputIOS: [styles.input, styles.picker],
+              inputAndroid: [styles.input, styles.picker],
+            }}
+            placeholder={{
+              label: "Select Gender",
+              value: null,
+            }}
+            items={[
+              { label: "Male", value: "male" },
+              { label: "Female", value: "female" }
+            ]}
+        />
+
+
+
+        <TextInput
+            placeholder="Birthdate (YYYY-MM-DD)"
+            value={birthDate}
+            onChangeText={setBirthDate}
+            style={[styles.input, birthDate && styles.inputFocused]}
+            keyboardType="default"
+        />
+
         <TextInput
           placeholder="Password"
           value={password}
@@ -118,6 +152,15 @@ const styles = StyleSheet.create({
   inputFocused: {
     borderColor: '#2E86C1', 
   },
+  picker: {
+    height: 50,
+    width: '100%',
+    borderColor: '#ddd',
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    marginBottom: 15,
+  },
   errorText: {
     color: 'red',
     marginBottom: 10,
@@ -148,5 +191,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+
 
 export default RegisterScreen;

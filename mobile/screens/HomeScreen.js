@@ -41,33 +41,33 @@ const HomeScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <FlatList
-        ListHeaderComponent={
-          <>
-            <Text style={styles.heading}>Welcome, {nickname}!</Text>
-            <Text style={styles.subHeading}>Choose your role</Text>
+      <View style={styles.container}>
+        <FlatList
+            ListHeaderComponent={
+              <>
+                <Text style={styles.heading}>Welcome, {nickname}!</Text>
+                <Text style={styles.subHeading}>Choose your role</Text>
 
-            <View style={styles.toggleContainer}>
-              <TouchableOpacity style={styles.option} onPress={() => switchTo(false)}>
-                <Text style={[styles.toggleText, !isOrganizer && styles.activeText]}>Participating</Text>
-              </TouchableOpacity>
+                <View style={styles.toggleContainer}>
+                  <TouchableOpacity style={styles.option} onPress={() => switchTo(false)}>
+                    <Text style={[styles.toggleText, !isOrganizer && styles.activeText]}>Participating</Text>
+                  </TouchableOpacity>
 
-              <TouchableOpacity style={styles.option} onPress={() => switchTo(true)}>
-                <Text style={[styles.toggleText, isOrganizer && styles.activeText]}>Organizing</Text>
-              </TouchableOpacity>
+                  <TouchableOpacity style={styles.option} onPress={() => switchTo(true)}>
+                    <Text style={[styles.toggleText, isOrganizer && styles.activeText]}>Organizing</Text>
+                  </TouchableOpacity>
 
-              <Animated.View style={[styles.slider, { left: slideAnim }]}>
-                <Text style={styles.sliderButtonText}>{isOrganizer ? 'Organizing' : 'Participating'}</Text>
-              </Animated.View>
-            </View>
-          </>
-        }
-        data={[]}
-        ListFooterComponent={renderContent}
-        keyExtractor={(item, index) => index.toString()}
-      />
-    </View>
+                  <Animated.View style={[styles.slider, { left: slideAnim }]}>
+                    <Text style={styles.sliderButtonText}>{isOrganizer ? 'Organizing' : 'Participating'}</Text>
+                  </Animated.View>
+                </View>
+              </>
+            }
+            data={[]}
+            ListFooterComponent={renderContent}
+            keyExtractor={(item, index) => index.toString()}
+        />
+      </View>
   );
 };
 
