@@ -31,6 +31,10 @@ const Tournament = sequelize.define('Tournament', {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  tournamentSystem:{
+    type: DataTypes.ENUM('cup','round-robin ','group and cup', 'double elimination system'),
+    allowNull: false,
+  },
   maxTeams: {                   
     type: DataTypes.INTEGER,
     allowNull: false,

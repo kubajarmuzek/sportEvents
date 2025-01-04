@@ -9,9 +9,9 @@ require('dotenv').config();
 
 
 router.post('/', async (req, res) => {
-  const { name, startDate, location, description, organizerId, sport, maxTeams, teamSize } = req.body;
+  const { name, startDate, location, description, organizerId, sport, tournamentSystem, maxTeams, teamSize } = req.body;
 
-  if (!name || !startDate || !location || !organizerId || !sport || !maxTeams || !teamSize) {
+  if (!name || !startDate || !location || !organizerId || !sport || !tournamentSystem || !maxTeams || !teamSize) {
     return res.status(400).json({ message: 'All fields are required' });
   }
 
@@ -23,6 +23,7 @@ router.post('/', async (req, res) => {
       description,
       organizerId,
       sport,
+      tournamentSystem,
       maxTeams,
       teamSize,
     });
@@ -137,7 +138,30 @@ router.delete('/:tournamentId/delete',async(req,res)=>{
     res.status(200).json({message: 'Tournament deleted successfully'});
 
   }catch (err){
-    res.status(500).json({message:'Failed to remove the team',error:err})
+    res.status(500).json({message:'Failed to remove the tournament',error:err})
+  }
+});
+
+router.patch('/:tournamentId/edit',async (req,res) => {
+  const {tournamentId} =req.params;
+  const updates= req.body;
+
+  try{
+    const tournament= await Tournament.findByPk(tournamentId);
+
+    if(!tournament){
+      return res.status(404).json({message: 'Tournament not found'});
+    }
+
+    //await tournament.update(updates);
+    await Tournament.update(
+      updates,
+      {where:{id: tournamentId}}
+    )
+    res.json({message: 'Tournament updated successfully'});
+
+  } catch(err){
+    res.status(500).json({message:'Failed to edit the tournament',error:err})
   }
 });
 
