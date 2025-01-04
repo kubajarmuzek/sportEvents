@@ -85,5 +85,29 @@ router.get('/:userId/participated-tournaments', async (req, res) => {
   }
 });
 
+router.delete('/:userId/:tournamentId/signout', async (req, res) => {
+  const { userId, tournamentId } = req.params;
+
+  try {
+    const participant = await Participant.findOne({
+      where: {
+        userId: userId,
+        tournamentId: tournamentId
+      }
+    });
+
+    if (!participant) {
+      return res.status(404).json({ message: 'Participant not found in this tournament' });
+    }
+
+    await participant.destroy();
+    res.status(200).json({ message: 'Successfully signed out from the tournament' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error signing out from the tournament' });
+  }
+});
+
+
 
 module.exports = router;

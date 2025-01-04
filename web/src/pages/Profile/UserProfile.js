@@ -60,12 +60,9 @@ const UserProfile = () => {
     }
   };
 
-  const handleSignOut = async (participantId) => {
+  const handleSignOut = async (tournamentId) => {
     try {
-      await axios.delete(`http://localhost:5000/api/participants/${participantId}/signout`);
-      setUpcomingTournaments((prev) =>
-        prev.filter((tournament) => tournament.id !== participantId)
-      );
+      await axios.delete(`http://localhost:5000/api/users/${userId}/${tournamentId}/signout`);
     } catch (error) {
       console.error("Error signing out from tournament:", error);
     }

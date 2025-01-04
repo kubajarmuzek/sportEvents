@@ -19,7 +19,7 @@ const Match = sequelize.define('Match',{
         type:DataTypes.STRING,
         allowNull: false
     },
-    homeTeamId: {
+    homeTeamID: {
         type: DataTypes.INTEGER,
         allowNull:false,
         references:{
@@ -27,7 +27,7 @@ const Match = sequelize.define('Match',{
             key: 'id'
         }
     },
-    awayTeamId:{
+    awayTeamID:{
         type: DataTypes.INTEGER,
         allowNull:false,
         references:{
