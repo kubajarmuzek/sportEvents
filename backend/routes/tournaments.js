@@ -141,4 +141,99 @@ router.delete('/:tournamentId/delete',async(req,res)=>{
   }
 });
 
+router.post("/:tournamentId/cup/generate-first-round", async (req, res) => {
+  const { tournamentId } = req.params;
+
+  try {
+    const tournament = await Tournament.findByPk(tournamentId);
+    if (!tournament) {
+      throw new Error("Tournament not found");
+    }
+
+    const teams = await Team.findAll({ 
+      where: { 
+        tournamentId, 
+        name: { [Op.ne]: 'bye' }
+      }
+    });
+    
+    if (teams.length < 2) {
+      return res
+        .status(400)
+        .json({ message: "Not enough teams to start the tournament." });
+    }
+
+    const shuffledTeams = teams.sort(() => 0.5 - Math.random());
+    const nextPowerOf2 = Math.pow(
+      2,
+      Math.ceil(Math.log2(shuffledTeams.length))
+    );
+    const byesNeeded = nextPowerOf2 - shuffledTeams.length;
+
+    let byeTeam = await Team.findOne({ where: { name: "Bye", tournamentId } });
+    if (!byeTeam) {
+      byeTeam = await Team.create({
+        name: "Bye",
+        tournamentId,
+        leaderId: 1,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    }
+
+    for (let i = 0; i < byesNeeded; i++) {
+      shuffledTeams.push(byeTeam);
+    }
+
+    const firstRoundMatches = [];
+    for (let i = 0; i < shuffledTeams.length; i += 2) {
+      console.log(shuffledTeams[i].id)
+      if (
+        shuffledTeams[i].id !== byeTeam.id &&
+        shuffledTeams[i + 1].id !== byeTeam.id
+      ) {
+        firstRoundMatches.push({
+          tournamentId,
+          sport: tournament.sport,
+          homeTeamID: shuffledTeams[i].id,
+          awayTeamID: shuffledTeams[i + 1].id,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+      } else {
+        const realTeamID =
+          shuffledTeams[i].id === byeTeam.id
+            ? shuffledTeams[i + 1].id
+            : shuffledTeams[i].id;
+        firstRoundMatches.push({
+          tournamentId,
+          sport: tournament.sport,
+          homeTeamID: realTeamID,
+          awayTeamID: byeTeam.id,
+          homeScore: 1,
+          awayScore: 0,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+      }
+    }
+
+    console.log(firstRoundMatches)
+
+    if (firstRoundMatches.length > 0) {
+      await Match.bulkCreate(firstRoundMatches);
+    }
+
+    res
+      .status(201)
+      .json({
+        message: "First round matches generated successfully.",
+        matches: firstRoundMatches,
+      });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+});
+
 module.exports = router;
