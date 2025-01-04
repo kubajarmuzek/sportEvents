@@ -24,17 +24,17 @@
 .list-table thead tr th {
   background: linear-gradient(145deg, #2e86c1, #1c5a7a);
   color: white;
-  text-align: left;
-  padding: 8px;
+  text-align: center;
+  padding: 0.15vw;
   font-size: 0.85rem;
   font-weight: bold;
-  text-transform: uppercase;
   letter-spacing: 0.03em;
   transition: all 0.3s ease;
 }
 
 .list-table td {
-  padding: 8px;
+  text-align: center;
+  padding: 0.15vw;
   color: #2d3436;
   font-size: 0.85rem;
   border-bottom: 1px solid #e6e6e6;
@@ -54,13 +54,7 @@
   transition: background-color 0.3s ease-in-out;
 }
 
-.no-data {
-  text-align: center;
-  color: #666;
-  font-size: 1rem;
-  padding: 20px;
-}
-
+.no-data,
 .loading,
 .error {
   text-align: center;
@@ -76,200 +70,6 @@
   color: #d63031;
 }
 
-.modal-content {
-  background: white;
-  color: #2d3436;
-  padding: 20px;
-  border-radius: 8px;
-  max-width: 90%;
-  width: 100%;
-  max-height: 80vh;
-  overflow-y: auto;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
-}
-
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.modal-content p {
-  margin: 10px;
-}
-
-.modal-title {
-  font-size: 18px;
-  margin-bottom: 15px;
-}
-
-.view-details-button {
-  padding: 6px 8px;
-  background: linear-gradient(145deg, #2e86c1, #1c5a7a);
-  color: white;
-  border: none;
-  border-radius: 5px;
-  font-size: 0.65rem;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  margin-bottom: 20px;
-}
-
-.view-details-button:hover {
-  background: linear-gradient(145deg, #1c5a7a, #2e86c1);
-  transform: scale(1.05);
-  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
-}
-
-.view-details-button:active {
-  transform: scale(1);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-}
-
-.form-button:focus {
-  outline: none;
-}
-
-.close-modal-button {
-  padding: 6px 8px;
-  background: linear-gradient(145deg, #c12e2e, #7a1c1c85);
-  color: white;
-  border: none;
-  border-radius: 5px;
-  font-size: 0.8rem;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  margin-bottom: 20px;
-}
-
-.close-modal-button:hover {
-  background: linear-gradient(145deg, #7a1c1c85, #c12e2e);
-  transform: scale(1.05);
-  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
-}
-
-.close-modal-button:active {
-  transform: scale(1);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-}
-
-.teams-list {
-  list-style: none;
-  padding: 0;
-}
-
-.team {
-  border: 1px solid #e6e6e6;
-  border-radius: 5px;
-  background-color: #f9f9f9;
-}
-
-.team:hover {
-  background-color: #e7e7e7;
-}
-
-.team-item {
-  margin: 10px 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px;
-}
-
-.sign-up-button {
-  background-color: #2e86c1;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 5px;
-  font-size: 0.75rem;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.sign-up-button:hover {
-  background-color: #2e86c1;
-}
-
-.create-team-button {
-  display: block;
-  margin: 15px 0;
-  background-color: #2196f3;
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 5px;
-  font-size: 0.9rem;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.create-team-button:hover {
-  background-color: #1e87f0;
-}
-
-.bigger {
-  font-size: 0.8rem;
-}
-
-hr {
-  border: 0;
-  height: 2px;
-  background: linear-gradient(90deg, #00000057, #000000);
-  margin: 15px 0;
-}
-
-.create-team-section {
-  margin: 15px 0;
-}
-
-.team-name-input {
-  width: 30%;
-  padding: 8px;
-  margin: 10px 0;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  font-size: 0.85rem;
-}
-
-.team-actions {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.participants-section {
-  margin-top: 20px;
-  margin-bottom: 15px;
-}
-
-.participants-list {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.participants-list p {
-  margin: 5px;
-  font-size: 16px;
-  font-weight: bold;
-}
-
 @media screen and (max-width: 600px) {
   .list-container {
     padding: 10px;
@@ -283,16 +83,5 @@ hr {
   .list-table td {
     padding: 6px;
     font-size: 0.75rem;
-  }
-
-  .modal-content {
-    padding: 15px;
-  }
-
-  .sign-up-button,
-  .create-team-button,
-  .close-modal-button {
-    font-size: 0.7rem;
-    padding: 5px 8px;
   }
 }
