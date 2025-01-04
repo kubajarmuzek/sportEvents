@@ -101,7 +101,7 @@ const TournamentFormScreen = ({navigation}) => {
       setLoading(true);
 
       const response = await axios.post(
-        "http://192.168.0.143:5000/api/tournaments",
+        "http://10.0.2.2:5000/api/tournaments",
         {
           name,
           startDate: startDate.toISOString(),
