@@ -1,19 +1,25 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./UserProfile.css";
+import { useNavigate } from "react-router-dom";
 
 const UserProfile = () => {
   const [pendingApprovals, setPendingApprovals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [upcomingTournaments, setUpcomingTournaments] = useState([]);
   const [pastTournaments, setPastTournaments] = useState([]);
-  const [upcomingOrganizedTournaments, setOrganizedUpcomingTournaments] = useState([]);
+  const [upcomingOrganizedTournaments, setOrganizedUpcomingTournaments] =
+    useState([]);
   const [pastOrganizedTournaments, setOrganizedPastTournaments] = useState([]);
   const userId = localStorage.getItem("id");
 
+  const navigate = useNavigate();
+
   const fetchTournaments = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/users/${userId}/participated-tournaments`);
+      const response = await axios.get(
+        `http://localhost:5000/api/users/${userId}/participated-tournaments`
+      );
       setUpcomingTournaments(response.data.upcoming);
       setPastTournaments(response.data.past);
     } catch (error) {
@@ -23,7 +29,9 @@ const UserProfile = () => {
 
   const fetchOrganizedTournaments = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/users/${userId}/organized-tournaments`);
+      const response = await axios.get(
+        `http://localhost:5000/api/users/${userId}/organized-tournaments`
+      );
       setOrganizedUpcomingTournaments(response.data.upcoming);
       setOrganizedPastTournaments(response.data.past);
     } catch (error) {
@@ -33,7 +41,9 @@ const UserProfile = () => {
 
   const fetchPendingApprovals = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/participants/pending-approvals/${userId}`);
+      const response = await axios.get(
+        `http://localhost:5000/api/participants/pending-approvals/${userId}`
+      );
       setPendingApprovals(response.data);
     } catch (error) {
       console.error("Error fetching pending approvals:", error);
@@ -44,8 +54,13 @@ const UserProfile = () => {
 
   const handleApproval = async (participantId) => {
     try {
-      await axios.put(`http://localhost:5000/api/participants/${participantId}/approve`, { leaderId: userId });
-      setPendingApprovals((prev) => prev.filter((participant) => participant.id !== participantId));
+      await axios.put(
+        `http://localhost:5000/api/participants/${participantId}/approve`,
+        { leaderId: userId }
+      );
+      setPendingApprovals((prev) =>
+        prev.filter((participant) => participant.id !== participantId)
+      );
     } catch (error) {
       console.error("Error approving participant:", error);
     }
@@ -53,8 +68,13 @@ const UserProfile = () => {
 
   const handleRejection = async (participantId) => {
     try {
-      await axios.put(`http://localhost:5000/api/participants/${participantId}/reject`, { leaderId: userId });
-      setPendingApprovals((prev) => prev.filter((participant) => participant.id !== participantId));
+      await axios.put(
+        `http://localhost:5000/api/participants/${participantId}/reject`,
+        { leaderId: userId }
+      );
+      setPendingApprovals((prev) =>
+        prev.filter((participant) => participant.id !== participantId)
+      );
     } catch (error) {
       console.error("Error rejecting participant:", error);
     }
@@ -62,7 +82,9 @@ const UserProfile = () => {
 
   const handleSignOut = async (tournamentId) => {
     try {
-      await axios.delete(`http://localhost:5000/api/users/${userId}/${tournamentId}/signout`);
+      await axios.delete(
+        `http://localhost:5000/api/users/${userId}/${tournamentId}/signout`
+      );
     } catch (error) {
       console.error("Error signing out from tournament:", error);
     }
@@ -71,7 +93,9 @@ const UserProfile = () => {
   const handleDeleteTournament = async (tournamentId) => {
     if (window.confirm("Are you sure you want to delete this tournament?")) {
       try {
-        await axios.delete(`http://localhost:5000/api/tournaments/${tournamentId}/delete`);
+        await axios.delete(
+          `http://localhost:5000/api/tournaments/${tournamentId}/delete`
+        );
         setOrganizedUpcomingTournaments((prev) =>
           prev.filter((tournament) => tournament.id !== tournamentId)
         );
@@ -86,9 +110,8 @@ const UserProfile = () => {
     }
   };
 
-
   useEffect(() => {
-    fetchTournaments()
+    fetchTournaments();
     fetchPendingApprovals();
     fetchOrganizedTournaments();
   }, []);
@@ -108,8 +131,8 @@ const UserProfile = () => {
             {pendingApprovals.map((participant) => (
               <li key={participant.id} className="approval-item">
                 <span>
-                  <strong>{participant.participantName}</strong> requested to join{" "}
-                  <strong>{participant.tournamentName}</strong>
+                  <strong>{participant.participantName}</strong> requested to
+                  join <strong>{participant.tournamentName}</strong>
                 </span>
                 <div className="approval-actions">
                   <button
@@ -182,7 +205,7 @@ const UserProfile = () => {
               <li key={tournament.id} className="tournament-item">
                 <strong>{tournament.name}</strong>
                 <span>
-                  {new Date(tournament.startDate).toLocaleDateString()} 
+                  {new Date(tournament.startDate).toLocaleDateString()}
                 </span>
                 <div className="actions">
                   <button
@@ -190,6 +213,14 @@ const UserProfile = () => {
                     onClick={() => handleDeleteTournament(tournament.id)}
                   >
                     Delete
+                  </button>
+                  <button
+                    className="organizer-button"
+                    onClick={() =>
+                      navigate(`/organizer-panel/${tournament.id}`)
+                    }
+                  >
+                    Organizer Panel
                   </button>
                 </div>
               </li>

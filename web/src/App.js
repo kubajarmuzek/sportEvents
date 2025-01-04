@@ -10,6 +10,7 @@ import SignupScreen from "./pages/Auth/RegisterScreen";
 import Auth from "./pages/Auth/Auth";
 import { AuthContext } from "./context/AuthProvider";
 import React, { useContext } from "react";
+import OrganizerPanel from "./pages/OrganizerPanel/OrganizerPanel";
 
 function App() {
   const { isAuthenticated } = useContext(AuthContext);
@@ -26,6 +27,7 @@ function App() {
           path="/auth"
           element={!isAuthenticated ? <Auth /> : <Navigate to="/home" />}
         />
+        <Route path="/organizer-panel/:id" element={<OrganizerPanel />} />
       </Routes>
     </Router>
   );
