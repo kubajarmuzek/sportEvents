@@ -2,10 +2,12 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import './OrganizerPanel.css';
+import { FaArrowLeft } from "react-icons/fa";
 
 const OrganizerPanel = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+
   const [suggestions, setSuggestions] = useState([]);
   const [showSports, setShowSports] = useState(false);
   const [sportsList, setSportsList] = useState([]);
@@ -108,12 +110,23 @@ const OrganizerPanel = () => {
     setShowSports(false);
   };
 
+  const handleGoBack = () => {
+    navigate(-1); 
+  };
+
   if (loading) return <div>Loading tournament data...</div>;
   if (error) return <div>{error}</div>;
   if (!tournament) return <div>No tournament data found</div>;
 
   return (
     <div className="form-container">
+      <button
+        onClick={handleGoBack}
+        className="go-back-button"
+        title="Go Back"
+      >
+        <FaArrowLeft size={40} />
+      </button>
       <h2 className="form-header">Edit Tournament</h2>
       <form onSubmit={handleSubmit}>
         <div>

@@ -1,110 +1,123 @@
 .form-container {
-    width: 100%;
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 20px;
-    padding-bottom: 0;
-    border-radius: 10px;
-  }
-  
-  .form-header {
-    font-size: 20px;
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  
-  .form-input {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 8px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 16px;
-  }
-  
-  .location-container {
-    position: relative;
-  }
-  
-  .suggestions-list {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  padding-bottom: 0;
+  border-radius: 10px;
+}
+
+.form-header {
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 8px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.location-container {
+  position: relative;
+}
+
+.suggestions-list {
+  position: absolute;
+  top: 40px;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 10;
+}
+
+.suggestion-item {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.suggestion-item:hover {
+  background-color: #f0f0f0;
+}
+
+.sport-container {
+  position: relative;
+}
+
+.sport-list {
+  position: absolute;
+  top: 40px;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 10;
+}
+
+.sport-item {
+  padding: 10px;
+  color: black;
+  cursor: pointer;
+}
+
+.sport-item:hover {
+  background-color: #f0f0f0;
+}
+
+.form-button {
+  width: 100%;
+  padding: 12px 20px;
+  background: linear-gradient(145deg, #2e86c1, #1c5a7a);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 20px;
+}
+
+.form-button:hover {
+  background: linear-gradient(145deg, #1c5a7a, #2e86c1);
+  transform: scale(1.05);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}
+
+.form-button:active {
+  transform: scale(1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.form-button:focus {
+  outline: none;
+}
+
+.go-back-button {
     position: absolute;
     top: 40px;
-    left: 0;
-    right: 0;
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    max-height: 200px;
-    overflow-y: auto;
-    z-index: 10;
-  }
-  
-  .suggestion-item {
-    padding: 10px;
-    cursor: pointer;
-  }
-  
-  .suggestion-item:hover {
-    background-color: #f0f0f0;
-  }
-  
-  .sport-container {
-    position: relative;
-  }
-  
-  .sport-list {
-    position: absolute;
-    top: 40px;
-    left: 0;
-    right: 0;
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    max-height: 200px;
-    overflow-y: auto;
-    z-index: 10;
-  }
-  
-  .sport-item {
-    padding: 10px;
-    color: black;
-    cursor: pointer;
-  }
-  
-  .sport-item:hover {
-    background-color: #f0f0f0;
-  }
-  
-  .form-button {
-    width: 100%;
-    padding: 12px 20px;
-    background: linear-gradient(145deg, #2e86c1, #1c5a7a);
-    color: white;
+    right: 40px;
+    background-color: transparent;
     border: none;
-    border-radius: 5px;
-    font-size: 1rem;
-    font-weight: bold;
     cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    margin-bottom: 20px;
+    color: #333;
   }
   
-  .form-button:hover {
-    background: linear-gradient(145deg, #1c5a7a, #2e86c1);
-    transform: scale(1.05);
-    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+  .go-back-button:hover {
+    color: #007bff;
   }
-  
-  .form-button:active {
-    transform: scale(1);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-  }
-  
-  .form-button:focus {
-    outline: none;
-  }
-  
