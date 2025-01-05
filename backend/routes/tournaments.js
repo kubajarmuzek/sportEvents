@@ -5,11 +5,13 @@ const Participant = require('../models/Participant');
 const User = require('../models/User');
 const Team = require('../models/Team');
 const Match = require('../models/Match');
+
 const MatchSet = require('../models/MatchSet');
 
 require('dotenv').config();
 
 const {Op} = require("sequelize");
+
 
 router.post('/', async (req, res) => {
   const { name, startDate, location, description, organizerId, sport, tournamentSystem, maxTeams, teamSize } = req.body;
