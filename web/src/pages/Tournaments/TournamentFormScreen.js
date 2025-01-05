@@ -3,6 +3,12 @@ import axios from "axios";
 import "./TournamentFormScreen.css";
 
 const TournamentFormScreen = () => {
+  const tournamentTypes = [
+    "cup",
+    "round-robin",
+    "group and cup",
+    "double elimination system",
+  ];
   const [formData, setFormData] = useState({
     name: "",
     location: "",
@@ -11,6 +17,8 @@ const TournamentFormScreen = () => {
     teamSize: "",
     startDate: "",
     organizerId: "",
+    description: "",
+    tournamentSystem: "",
   });
   const [sportsList, setSportsList] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
@@ -24,7 +32,7 @@ const TournamentFormScreen = () => {
         organizerId: organizerId,
       }));
     }
-    console.log(organizerId)
+    console.log(organizerId);
   }, []);
 
   useEffect(() => {
@@ -184,6 +192,26 @@ const TournamentFormScreen = () => {
           onChange={handleChange}
           className="form-input"
         />
+        <textarea
+          name="description"
+          placeholder="Tournament Description"
+          value={formData.description}
+          onChange={handleChange}
+          className="form-textarea"
+        ></textarea>
+        <select
+          name="tournamentSystem"
+          value={formData.tournamentSystem}
+          onChange={handleChange}
+          className="form-select"
+        >
+          <option value="">Select Tournament Type</option>
+          {tournamentTypes.map((type, index) => (
+            <option key={index} value={type}>
+              {type}
+            </option>
+          ))}
+        </select>
         <button type="button" onClick={handleSubmit} className="form-button">
           Submit
         </button>

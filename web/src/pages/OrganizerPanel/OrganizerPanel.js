@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from "axios";
-import './OrganizerPanel.css';
+import "./OrganizerPanel.css";
 import { FaArrowLeft } from "react-icons/fa";
 
 const OrganizerPanel = () => {
@@ -18,11 +18,20 @@ const OrganizerPanel = () => {
   useEffect(() => {
     const fetchTournament = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/tournaments/`);
-        const userTournaments = response.data.filter(tournament => tournament.id == id);
+        const response = await axios.get(
+          `http://localhost:5000/api/tournaments/`
+        );
+        const userTournaments = response.data.filter(
+          (tournament) => tournament.id == id
+        );
         if (userTournaments.length > 0) {
-          const formattedStartDate = new Date(userTournaments[0].startDate).toISOString().split('T')[0];
-          setTournament({ ...userTournaments[0], startDate: formattedStartDate });
+          const formattedStartDate = new Date(userTournaments[0].startDate)
+            .toISOString()
+            .split("T")[0];
+          setTournament({
+            ...userTournaments[0],
+            startDate: formattedStartDate,
+          });
         }
       } catch (err) {
         setError("Error fetching tournament data");
@@ -57,17 +66,20 @@ const OrganizerPanel = () => {
   };
 
   const handleSubmit = async (e) => {
-    //TODO: proper backend communication
-    e.preventDefault();
+    e.preventDefault(); // Prevent page refresh
+  
     try {
-      await axios.put(`http://localhost:5000/api/tournaments/${id}`, tournament);
+      await axios.patch(
+        `http://localhost:5000/api/tournaments/${id}/edit`, // Endpoint
+        tournament // Send updated tournament data in request body
+      );
       alert("Tournament updated successfully");
-      navigate(`/organizer-panel/${id}`);
     } catch (error) {
       console.error("Error updating tournament:", error);
       alert("Failed to update tournament");
     }
   };
+  
 
   const handleLocationChange = async (e) => {
     const query = e.target.value;
@@ -111,7 +123,7 @@ const OrganizerPanel = () => {
   };
 
   const handleGoBack = () => {
-    navigate(-1); 
+    navigate(-1);
   };
 
   if (loading) return <div>Loading tournament data...</div>;
@@ -120,11 +132,7 @@ const OrganizerPanel = () => {
 
   return (
     <div className="form-container">
-      <button
-        onClick={handleGoBack}
-        className="go-back-button"
-        title="Go Back"
-      >
+      <button onClick={handleGoBack} className="go-back-button" title="Go Back">
         <FaArrowLeft size={40} />
       </button>
       <h2 className="form-header">Edit Tournament</h2>
@@ -160,18 +168,18 @@ const OrganizerPanel = () => {
               onChange={handleLocationChange}
             />
             {suggestions.length > 0 && (
-            <ul className="suggestions-list">
-              {suggestions.map((item) => (
-                <li
-                  key={item.id}
-                  className="suggestion-item"
-                  onClick={() => handleLocationSelect(item)}
-                >
-                  {item.place_name}
-                </li>
-              ))}
-            </ul>
-          )}
+              <ul className="suggestions-list">
+                {suggestions.map((item) => (
+                  <li
+                    key={item.id}
+                    className="suggestion-item"
+                    onClick={() => handleLocationSelect(item)}
+                  >
+                    {item.place_name}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
         <div>
@@ -225,9 +233,27 @@ const OrganizerPanel = () => {
             name="teamSize"
             value={tournament.teamSize || ""}
             onChange={handleChange}
-          /> 
+          />
         </div>
-        <button className="form-button" type="submit">Update Tournament</button>
+        <div>
+          <label>Bracket Type</label>
+          <select
+            className="form-input"
+            name="bracketType"
+            value={tournament.bracketType || ""}
+            onChange={handleChange}
+          >
+            <option value="">Select Bracket Type</option>
+            <option value="knockout">Knockout</option>
+            <option value="roundRobin">Round Robin</option>
+            <option value="groupWithKnockout">Group with Knockout</option>
+            <option value="brazilian">Brazilian</option>
+          </select>
+        </div>
+
+        <button className="form-button" type="submit">
+          Update Tournament
+        </button>
       </form>
     </div>
   );

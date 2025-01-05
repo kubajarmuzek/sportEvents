@@ -123,3 +123,23 @@
 .suggestion-item {
   color: black;
 }
+
+.form-select, .form-textarea {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 8px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+  font-family: inherit;
+}
+
+.form-select {
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
