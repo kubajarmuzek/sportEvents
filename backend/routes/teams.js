@@ -3,8 +3,11 @@ const router = express.Router();
 const  Participant  = require('../models/Participant');
 const  User  = require('../models/User');
 const Team = require('../models/Team');
+const Match =require('../models/Match');
 
 require('dotenv').config();
+
+const {Op} = require("sequelize");
 
 router.get('/:teamId/participants', async (req, res) => {
     try {
@@ -21,16 +24,27 @@ router.get('/:teamId/participants', async (req, res) => {
 });
 
 router.delete('/:teamId/delete',async(req,res)=>{
+  const {teamId} = req.params;
   try{
-      const {teamId} = req.params;
-      const deletedTeam=await Team.destroy({
-        where:{id:teamId},
-      })
-
+      const deletedTeam=await Team.findByPk(teamId);
       if(!deletedTeam){
         return res.status(404).json({message: 'Team not found'});
       }
 
+      const matchPlayed=await Match.findOne({
+        where: {
+          [Op.or]:[
+            {homeTeamID: teamId},
+            {awayTeamID: teamId},
+          ],
+        },
+      });
+
+      if(matchPlayed){
+        return res.status(400).json({message: 'Cannot delete team because it played match'});
+      }
+
+      await deletedTeam.destroy();
       res.status(200).json({message: 'Team deleted successfully'});
   } catch (err){
     res.status(500).json({message:'Failed to remove the team',error:err})

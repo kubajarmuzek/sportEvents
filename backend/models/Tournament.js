@@ -51,6 +51,11 @@ const Tournament = sequelize.define('Tournament', {
       key: 'id',
     },
   },
+  tournamentStatus:{
+    type:DataTypes.ENUM('not started','in progress','completed'),
+    allowNull: false,
+    defaultValue: 'not started',
+  }
 }, {
   timestamps: true,
 });

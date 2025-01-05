@@ -15,6 +15,7 @@ const Participant = sequelize.define('Participant', {
         model: 'Tournaments',
         key: 'id',
       },
+      onDelete:'CASCADE',
     },
     teamId: {
       type: DataTypes.INTEGER,
@@ -22,6 +23,7 @@ const Participant = sequelize.define('Participant', {
         model: 'Teams',
         key: 'id',
       },
+      onDelete:'CASCADE',
     },
     statusUser: {
       type: DataTypes.ENUM('waiting','approved','rejected'),

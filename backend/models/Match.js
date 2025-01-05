@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
+const MatchSet=require('./MatchSet');
 
 const Match = sequelize.define('Match',{
     id: {
@@ -13,19 +14,25 @@ const Match = sequelize.define('Match',{
         references:{
             model: 'Tournaments',
             key: 'id'
-        }
+        },
+        onDelete:'CASCADE',
     },
     sport: {
         type:DataTypes.STRING,
         allowNull: false
     },
+    round:{
+        type:DataTypes.STRING,
+        allowNull:false,
+    },
+
     homeTeamID: {
         type: DataTypes.INTEGER,
         allowNull:false,
         references:{
             model:'Teams',
             key: 'id'
-        }
+        },
     },
     awayTeamID:{
         type: DataTypes.INTEGER,
@@ -33,14 +40,15 @@ const Match = sequelize.define('Match',{
         references:{
             model:'Teams',
             key: 'id'
-        }
+        },
+    
     },
     homeScore: {
         type: DataTypes.INTEGER,
         allowNull: true
 
     },
-    awayStore:{
+    awayScore:{
         type: DataTypes.INTEGER,
         allowNull:true
     },
@@ -61,11 +69,9 @@ Match.associate=(models)=>{
         foreignKey:'awayTeamId',
         as: 'awayTeam'
     });
-    
-    Match.hasMany(models.MatchSet,{
-        foreignKey: 'matchId',
-        as: 'sets'
-    });
 };
-
+Match.hasMany(MatchSet,{
+    foreignKey: 'matchId',
+    as: 'sets'
+});
 module.exports=Match;   

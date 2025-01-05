@@ -35,4 +35,5 @@ MatchSet.associate = (models) =>{
         as: 'match'
     })
 };
+
 module.exports=MatchSet;

@@ -4,9 +4,12 @@ const Tournament = require('../models/Tournament');
 const Participant = require('../models/Participant');
 const User = require('../models/User');
 const Team = require('../models/Team');
+const Match = require('../models/Match');
+const MatchSet = require('../models/MatchSet');
 
 require('dotenv').config();
 
+const {Op} = require("sequelize");
 
 router.post('/', async (req, res) => {
   const { name, startDate, location, description, organizerId, sport, tournamentSystem, maxTeams, teamSize } = req.body;
@@ -125,16 +128,28 @@ router.get('/:tournamentId/teams', async (req, res) => {
 });
 
 router.delete('/:tournamentId/delete',async(req,res)=>{
+  const { tournamentId }=req.params;
   try {
-    const { tournamentId }=req.params;
-    const deletedTournament=await Tournament.destroy({
-      where: {id:tournamentId},
-    })
+    
+    const deletedTournament=await Tournament.findByPk(tournamentId);
 
     if(!deletedTournament){
       return res.status(404).json({message:'Tournament not found'});
     }
 
+    const tournamentStart=await Match.findOne({
+      where:{
+          tournamentId:tournamentId,
+      [Op.and]:[
+        {homeScore:{[Op.ne]: null}},
+        {awayScore:{[Op.ne]:null}},
+      ],},
+    });
+    if(tournamentStart){
+      return res.status(400).json({message: 'Cannot delete tournament because it started'});
+    }
+
+    await deletedTournament.destroy();
     res.status(200).json({message: 'Tournament deleted successfully'});
 
   }catch (err){
@@ -153,7 +168,6 @@ router.patch('/:tournamentId/edit',async (req,res) => {
       return res.status(404).json({message: 'Tournament not found'});
     }
 
-    //await tournament.update(updates);
     await Tournament.update(
       updates,
       {where:{id: tournamentId}}
@@ -163,6 +177,33 @@ router.patch('/:tournamentId/edit',async (req,res) => {
   } catch(err){
     res.status(500).json({message:'Failed to edit the tournament',error:err})
   }
+});
+
+router.get('/:tournamentId/downloadingMatches',async (req,res)=>{
+  const {tournamentId}=req.params;
+  try{
+      const tournament=await Tournament.findByPk(tournamentId);
+
+      if(!tournament){
+        return res.status(404).json({message:'Tournament not found'});
+      }
+
+      const matches = await Match.findAll({
+        where: { tournamentId } ,
+        include: [
+          {
+          model: MatchSet,
+          as: 'sets',
+      },
+    ],
+  });
+
+  return res.json(matches);
+
+  }catch(err){
+    res.status(500).json({message:'Failed to download matches',error:err})
+  }
+
 });
 
 router.post("/:tournamentId/cup/generate-first-round", async (req, res) => {

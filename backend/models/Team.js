@@ -13,6 +13,7 @@ const Team = sequelize.define('Team', {
       model: 'Tournaments',
       key: 'id',
     },
+    onDelete: 'CASCADE',
   },
   leaderId: {
     type: DataTypes.INTEGER,
