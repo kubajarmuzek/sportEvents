@@ -93,7 +93,6 @@ const TournamentListScreen = () => {
         <TournamentDetails
           selectedTournament={selectedTournament}
           onClose={closeDetailsModal}
-          fetchTeams={fetchTeams}
         />
       )}
     </div>
