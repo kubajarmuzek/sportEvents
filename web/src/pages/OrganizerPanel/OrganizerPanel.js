@@ -14,6 +14,8 @@ const OrganizerPanel = () => {
   const [tournament, setTournament] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [matches, setMatches] = useState([]);
+  const [matchesLoading, setMatchesLoading] = useState(false);
 
   const fetchTournament = async () => {
     try {
@@ -39,8 +41,25 @@ const OrganizerPanel = () => {
     }
   };
 
+  const fetchMatches = async () => {
+    setMatchesLoading(true);
+    try {
+      const response = await axios.get(
+        `http://localhost:5000/api/tournaments/${id}/downloadingMatches`
+      );
+      console.log(response.data);
+      setMatches(response.data);
+    } catch (error) {
+      console.error("Error fetching matches:", error);
+      alert("Failed to fetch matches.");
+    } finally {
+      setMatchesLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchTournament();
+    fetchMatches();
   }, [id]);
 
   useEffect(() => {
@@ -160,7 +179,7 @@ const OrganizerPanel = () => {
   if (!tournament) return <div>No tournament data found</div>;
 
   return (
-    <div>
+    <div className="container">
       <div className="form-container">
         <button
           onClick={handleGoBack}
@@ -293,12 +312,74 @@ const OrganizerPanel = () => {
         </form>
       </div>
       <div className="start-tournament">
-        <button
-          onClick={handleStartTournament}
-          className="start-tournament-button"
-        >
+        <button onClick={handleStartTournament} className="form-button">
           Start Tournament
         </button>
+
+        <div className="matches-section">
+          <h2>Matches</h2>
+          {matchesLoading ? (
+            <div>Loading matches...</div>
+          ) : matches.length > 0 ? (
+            <ul className="matches-list">
+              {matches.map((match) => (
+                <li key={match.id} className="match-item">
+                  <div>
+                    <strong>Match:</strong> {match.homeTeamID} vs{" "}
+                    {match.awayTeamID}
+                  </div>
+                  <div>
+                    <strong>Round:</strong> {match.round}
+                  </div>
+                  <div>
+                    <strong>Score:</strong>
+                    {match.homeScore === null || match.awayScore === null ? (
+                      <div className="score-inputs">
+                        <input
+                          type="number"
+                          min="0"
+                          placeholder="Home score"
+                          defaultValue={match.homeScore || ""}
+                          onChange={(e) =>
+                            setMatches((prevMatches) =>
+                              prevMatches.map((m) =>
+                                m.id === match.id
+                                  ? { ...m, homeScore: e.target.value }
+                                  : m
+                              )
+                            )
+                          }
+                        />
+                        :
+                        <input
+                          type="number"
+                          min="0"
+                          placeholder="Away score"
+                          defaultValue={match.awayScore || ""}
+                          onChange={(e) =>
+                            setMatches((prevMatches) =>
+                              prevMatches.map((m) =>
+                                m.id === match.id
+                                  ? { ...m, awayScore: e.target.value }
+                                  : m
+                              )
+                            )
+                          }
+                        />
+                      </div>
+                    ) : (
+                      <span>
+                        {match.homeScore} : {match.awayScore}
+                      </span>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div>No matches found for this tournament.</div>
+          )}
+        </div>
       </div>
     </div>
   );

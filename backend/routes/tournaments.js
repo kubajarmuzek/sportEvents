@@ -266,6 +266,7 @@ router.post("/:tournamentId/cup/generate-first-round", async (req, res) => {
           awayTeamID: shuffledTeams[i + 1].id,
           createdAt: new Date(),
           updatedAt: new Date(),
+          round: 0,
         });
       } else {
         const realTeamID =
@@ -281,6 +282,7 @@ router.post("/:tournamentId/cup/generate-first-round", async (req, res) => {
           awayScore: 0,
           createdAt: new Date(),
           updatedAt: new Date(),
+          round: 0,
         });
       }
     }
