@@ -15,31 +15,31 @@ const OrganizerPanel = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchTournament = async () => {
-      try {
-        const response = await axios.get(
-          `http://localhost:5000/api/tournaments/`
-        );
-        const userTournaments = response.data.filter(
-          (tournament) => tournament.id == id
-        );
-        if (userTournaments.length > 0) {
-          const formattedStartDate = new Date(userTournaments[0].startDate)
-            .toISOString()
-            .split("T")[0];
-          setTournament({
-            ...userTournaments[0],
-            startDate: formattedStartDate,
-          });
-        }
-      } catch (err) {
-        setError("Error fetching tournament data");
-      } finally {
-        setLoading(false);
+  const fetchTournament = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:5000/api/tournaments/`
+      );
+      const userTournaments = response.data.filter(
+        (tournament) => tournament.id == id
+      );
+      if (userTournaments.length > 0) {
+        const formattedStartDate = new Date(userTournaments[0].startDate)
+          .toISOString()
+          .split("T")[0];
+        setTournament({
+          ...userTournaments[0],
+          startDate: formattedStartDate,
+        });
       }
-    };
+    } catch (err) {
+      setError("Error fetching tournament data");
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchTournament();
   }, [id]);
 
@@ -48,7 +48,6 @@ const OrganizerPanel = () => {
       try {
         const response = await axios.get("http://localhost:5000/api/sports");
         setSportsList(response.data);
-        console.log(response.data);
       } catch (error) {
         console.error("Error fetching sports:", error);
       }
@@ -66,13 +65,12 @@ const OrganizerPanel = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); 
-  
+    e.preventDefault();
+
     try {
-      console.log(tournament)
       await axios.patch(
-        `http://localhost:5000/api/tournaments/${id}/edit`, 
-        tournament 
+        `http://localhost:5000/api/tournaments/${id}/edit`,
+        tournament
       );
       alert("Tournament updated successfully");
     } catch (error) {
@@ -80,7 +78,6 @@ const OrganizerPanel = () => {
       alert("Failed to update tournament");
     }
   };
-  
 
   const handleLocationChange = async (e) => {
     const query = e.target.value;
@@ -127,135 +124,182 @@ const OrganizerPanel = () => {
     navigate(-1);
   };
 
+  const handleStartTournament = async () => {
+    try {
+      fetchTournament();
+      let endpoint = "";
+
+      switch (tournament.tournamentSystem) {
+        case "cup":
+          endpoint = `http://localhost:5000/api/tournaments/${id}/cup/generate-first-round`;
+          break;
+        case "round-robin":
+          // Add the appropriate endpoint for round-robin
+          break;
+        case "group and cup":
+          // Add the appropriate endpoint for group and cup
+          break;
+        case "double elimination system":
+          // Add the appropriate endpoint for double elimination
+          break;
+        default:
+          alert("Please select a valid tournament system.");
+          return;
+      }
+
+      const response = await axios.post(endpoint);
+      alert(response.data.message);
+    } catch (error) {
+      console.error("Error starting tournament:", error);
+      alert(error.response?.data?.message || "Failed to start the tournament.");
+    }
+  };
+
   if (loading) return <div>Loading tournament data...</div>;
   if (error) return <div>{error}</div>;
   if (!tournament) return <div>No tournament data found</div>;
 
   return (
-    <div className="form-container">
-      <button onClick={handleGoBack} className="go-back-button" title="Go Back">
-        <FaArrowLeft size={40} />
-      </button>
-      <h2 className="form-header">Edit Tournament</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Name</label>
-          <input
-            className="form-input"
-            type="text"
-            name="name"
-            value={tournament.name || ""}
-            onChange={handleChange}
-          />
-        </div>
-        <div>
-          <label>Start Date</label>
-          <input
-            className="form-input"
-            type="date"
-            name="startDate"
-            value={tournament.startDate || ""}
-            onChange={handleChange}
-          />
-        </div>
-        <div>
-          <label>Location</label>
-          <div className="location-container">
+    <div>
+      <div className="form-container">
+        <button
+          onClick={handleGoBack}
+          className="go-back-button"
+          title="Go Back"
+        >
+          <FaArrowLeft size={40} />
+        </button>
+        <h2 className="form-header">Edit Tournament</h2>
+        <form onSubmit={handleSubmit}>
+          <div>
+            <label>Name</label>
             <input
               className="form-input"
               type="text"
-              name="location"
-              value={tournament.location || ""}
-              onChange={handleLocationChange}
+              name="name"
+              value={tournament.name || ""}
+              onChange={handleChange}
             />
-            {suggestions.length > 0 && (
-              <ul className="suggestions-list">
-                {suggestions.map((item) => (
+          </div>
+          <div>
+            <label>Start Date</label>
+            <input
+              className="form-input"
+              type="date"
+              name="startDate"
+              value={tournament.startDate || ""}
+              onChange={handleChange}
+            />
+          </div>
+          <div>
+            <label>Location</label>
+            <div className="location-container">
+              <input
+                className="form-input"
+                type="text"
+                name="location"
+                value={tournament.location || ""}
+                onChange={handleLocationChange}
+              />
+              {suggestions.length > 0 && (
+                <ul className="suggestions-list">
+                  {suggestions.map((item) => (
+                    <li
+                      key={item.id}
+                      className="suggestion-item"
+                      onClick={() => handleLocationSelect(item)}
+                    >
+                      {item.place_name}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+          <div>
+            <label>Description</label>
+            <textarea
+              className="form-input"
+              name="description"
+              value={tournament.description || ""}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="sport-container">
+            <label>Sport</label>
+            <input
+              className="form-input"
+              type="text"
+              name="sport"
+              value={tournament.sport || ""}
+              onChange={handleChange}
+              onClick={() => setShowSports(!showSports)}
+            />
+            {showSports && (
+              <ul className="sport-list">
+                {sportsList.map((item, index) => (
                   <li
-                    key={item.id}
-                    className="suggestion-item"
-                    onClick={() => handleLocationSelect(item)}
+                    key={index}
+                    className="sport-item"
+                    onClick={() => handleSportSelect(item)}
                   >
-                    {item.place_name}
+                    {item.sport}
                   </li>
                 ))}
               </ul>
             )}
           </div>
-        </div>
-        <div>
-          <label>Description</label>
-          <textarea
-            className="form-input"
-            name="description"
-            value={tournament.description || ""}
-            onChange={handleChange}
-          />
-        </div>
-        <div className="sport-container">
-          <label>Sport</label>
-          <input
-            className="form-input"
-            type="text"
-            name="sport"
-            value={tournament.sport || ""}
-            onChange={handleChange}
-            onClick={() => setShowSports(!showSports)}
-          />
-          {showSports && (
-            <ul className="sport-list">
-              {sportsList.map((item, index) => (
-                <li
-                  key={index}
-                  className="sport-item"
-                  onClick={() => handleSportSelect(item)}
-                >
-                  {item.sport}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-        <div>
-          <label>Max Teams</label>
-          <input
-            className="form-input"
-            type="number"
-            name="maxTeams"
-            value={tournament.maxTeams || ""}
-            onChange={handleChange}
-          />
-        </div>
-        <div>
-          <label>Team Size</label>
-          <input
-            className="form-input"
-            type="number"
-            name="teamSize"
-            value={tournament.teamSize || ""}
-            onChange={handleChange}
-          />
-        </div>
-        <div>
-          <label>Bracket Type</label>
-          <select
-            className="form-input"
-            name="tournamentSystem"
-            value={tournament.tournamentSystem || ""}
-            onChange={handleChange}
-          >
-            <option value="">Select Bracket Type</option>
-            <option value="cup">cup</option>
-            <option value="round-robin">round-robin</option>
-            <option value="group and cup">group and cup</option>
-            <option value="double elimination system">double elimination system</option>
-          </select>
-        </div>
+          <div>
+            <label>Max Teams</label>
+            <input
+              className="form-input"
+              type="number"
+              name="maxTeams"
+              value={tournament.maxTeams || ""}
+              onChange={handleChange}
+            />
+          </div>
+          <div>
+            <label>Team Size</label>
+            <input
+              className="form-input"
+              type="number"
+              name="teamSize"
+              value={tournament.teamSize || ""}
+              onChange={handleChange}
+            />
+          </div>
+          <div>
+            <label>Bracket Type</label>
+            <select
+              className="form-input"
+              name="tournamentSystem"
+              value={tournament.tournamentSystem || ""}
+              onChange={handleChange}
+            >
+              <option value="">Select Bracket Type</option>
+              <option value="cup">cup</option>
+              <option value="round-robin">round-robin</option>
+              <option value="group and cup">group and cup</option>
+              <option value="double elimination system">
+                double elimination system
+              </option>
+            </select>
+          </div>
 
-        <button className="form-button" type="submit">
-          Update Tournament
+          <button className="form-button" type="submit">
+            Update Tournament
+          </button>
+        </form>
+      </div>
+      <div className="start-tournament">
+        <button
+          onClick={handleStartTournament}
+          className="start-tournament-button"
+        >
+          Start Tournament
         </button>
-      </form>
+      </div>
     </div>
   );
 };

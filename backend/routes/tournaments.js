@@ -4,8 +4,11 @@ const Tournament = require('../models/Tournament');
 const Participant = require('../models/Participant');
 const User = require('../models/User');
 const Team = require('../models/Team');
+const Match = require('../models/Match');
 
 require('dotenv').config();
+
+const { Op } = require("sequelize");
 
 
 router.post('/', async (req, res) => {
