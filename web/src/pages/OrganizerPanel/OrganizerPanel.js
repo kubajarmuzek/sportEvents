@@ -66,12 +66,13 @@ const OrganizerPanel = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent page refresh
+    e.preventDefault(); 
   
     try {
+      console.log(tournament)
       await axios.patch(
-        `http://localhost:5000/api/tournaments/${id}/edit`, // Endpoint
-        tournament // Send updated tournament data in request body
+        `http://localhost:5000/api/tournaments/${id}/edit`, 
+        tournament 
       );
       alert("Tournament updated successfully");
     } catch (error) {
@@ -239,15 +240,15 @@ const OrganizerPanel = () => {
           <label>Bracket Type</label>
           <select
             className="form-input"
-            name="bracketType"
-            value={tournament.bracketType || ""}
+            name="tournamentSystem"
+            value={tournament.tournamentSystem || ""}
             onChange={handleChange}
           >
             <option value="">Select Bracket Type</option>
-            <option value="knockout">Knockout</option>
-            <option value="roundRobin">Round Robin</option>
-            <option value="groupWithKnockout">Group with Knockout</option>
-            <option value="brazilian">Brazilian</option>
+            <option value="cup">cup</option>
+            <option value="round-robin">round-robin</option>
+            <option value="group and cup">group and cup</option>
+            <option value="double elimination system">double elimination system</option>
           </select>
         </div>
 
