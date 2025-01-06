@@ -14,7 +14,7 @@ body {
 .container {
   display: grid;
   grid-template-columns: 1fr 1fr; 
-  gap: 200px;
+  gap: 10vw;
   width: 80%;
   max-width: 1200px;
   padding: 20px;

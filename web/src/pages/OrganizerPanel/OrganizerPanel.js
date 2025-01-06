@@ -16,6 +16,7 @@ const OrganizerPanel = () => {
   const [error, setError] = useState(null);
   const [matches, setMatches] = useState([]);
   const [matchesLoading, setMatchesLoading] = useState(false);
+  const [scoreInputs, setScoreInputs] = useState({});
 
   const fetchTournament = async () => {
     try {
@@ -47,7 +48,6 @@ const OrganizerPanel = () => {
       const response = await axios.get(
         `http://localhost:5000/api/tournaments/${id}/downloadingMatches`
       );
-      console.log(response.data);
       setMatches(response.data);
     } catch (error) {
       console.error("Error fetching matches:", error);
@@ -172,6 +172,36 @@ const OrganizerPanel = () => {
       console.error("Error starting tournament:", error);
       alert(error.response?.data?.message || "Failed to start the tournament.");
     }
+  };
+
+  const handleAddResult = async (matchId, homeScore, awayScore) => {
+    try {
+      const resultData = {
+        homeScore: parseInt(homeScore, 10),
+        awayScore: parseInt(awayScore, 10),
+      };
+
+      await axios.patch(
+        `http://localhost:5000/api/match/${matchId}/addResult`,
+        resultData
+      );
+
+      alert("Match result added successfully!");
+      fetchMatches();
+    } catch (error) {
+      console.error("Error adding match result:", error);
+      alert("Failed to add match result.");
+    }
+  };
+
+  const handleScoreChange = (matchId, field, value) => {
+    setScoreInputs((prev) => ({
+      ...prev,
+      [matchId]: {
+        ...prev[matchId],
+        [field]: value,
+      },
+    }));
   };
 
   if (loading) return <div>Loading tournament data...</div>;
@@ -332,45 +362,49 @@ const OrganizerPanel = () => {
                     <strong>Round:</strong> {match.round}
                   </div>
                   <div>
-                    <strong>Score:</strong>
-                    {match.homeScore === null || match.awayScore === null ? (
+                    {match.homeScore === null && match.awayScore === null ? (
                       <div className="score-inputs">
                         <input
                           type="number"
-                          min="0"
-                          placeholder="Home score"
-                          defaultValue={match.homeScore || ""}
+                          placeholder="Home Score"
+                          value={scoreInputs[match.id]?.homeScore || ""}
                           onChange={(e) =>
-                            setMatches((prevMatches) =>
-                              prevMatches.map((m) =>
-                                m.id === match.id
-                                  ? { ...m, homeScore: e.target.value }
-                                  : m
-                              )
+                            handleScoreChange(
+                              match.id,
+                              "homeScore",
+                              e.target.value
                             )
                           }
                         />
-                        :
                         <input
                           type="number"
-                          min="0"
-                          placeholder="Away score"
-                          defaultValue={match.awayScore || ""}
+                          placeholder="Away Score"
+                          value={scoreInputs[match.id]?.awayScore || ""}
                           onChange={(e) =>
-                            setMatches((prevMatches) =>
-                              prevMatches.map((m) =>
-                                m.id === match.id
-                                  ? { ...m, awayScore: e.target.value }
-                                  : m
-                              )
+                            handleScoreChange(
+                              match.id,
+                              "awayScore",
+                              e.target.value
                             )
                           }
                         />
+                        <button
+                          onClick={() =>
+                            handleAddResult(
+                              match.id,
+                              scoreInputs[match.id]?.homeScore,
+                              scoreInputs[match.id]?.awayScore
+                            )
+                          }
+                        >
+                          Add Result
+                        </button>
                       </div>
                     ) : (
-                      <span>
-                        {match.homeScore} : {match.awayScore}
-                      </span>
+                      <div>
+                        <strong>Score:</strong> {match.homeScore} :{" "}
+                        {match.awayScore}
+                      </div>
                     )}
                   </div>
                 </li>
