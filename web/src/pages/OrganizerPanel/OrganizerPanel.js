@@ -204,6 +204,34 @@ const OrganizerPanel = () => {
     }));
   };
 
+  const isLatestRoundFinished = () => {
+    const latestRound = Math.max(...matches.map((match) => match.round));
+    const latestRoundMatches = matches.filter(
+      (match) => match.round === latestRound
+    );
+    return latestRoundMatches.every(
+      (match) => match.homeScore !== null && match.awayScore !== null
+    );
+  };
+
+  const handleStartNextRound = async () => {
+    if (!isLatestRoundFinished()) {
+      alert("Not all matches in the current round are finished.");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `http://localhost:5000/api/tournaments/${id}/cup/generate-next-round`
+      );
+      alert(response.data.message || "Next round started successfully!");
+      fetchMatches();
+    } catch (error) {
+      console.error("Error starting next round:", error);
+      alert("Failed to start the next round.");
+    }
+  };
+
   if (loading) return <div>Loading tournament data...</div>;
   if (error) return <div>{error}</div>;
   if (!tournament) return <div>No tournament data found</div>;
@@ -413,6 +441,10 @@ const OrganizerPanel = () => {
           ) : (
             <div>No matches found for this tournament.</div>
           )}
+
+          <button onClick={handleStartNextRound} className="form-button">
+            Start Next Round
+          </button>
         </div>
       </div>
     </div>

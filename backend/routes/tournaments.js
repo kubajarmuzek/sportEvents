@@ -305,4 +305,100 @@ router.post("/:tournamentId/cup/generate-first-round", async (req, res) => {
   }
 });
 
+router.post("/:tournamentId/cup/generate-next-round", async (req, res) => {
+  const { tournamentId } = req.params;
+
+  try {
+    const tournament = await Tournament.findByPk(tournamentId);
+
+    const latestRound = await Match.max("round", { where: { tournamentId } });
+
+    if (latestRound === null) {
+      return res.status(400).json({ message: "No matches found in the tournament." });
+    }
+
+    const latestRoundMatches = await Match.findAll({
+      where: { tournamentId, round: latestRound },
+    });
+
+    const unfinishedMatches = latestRoundMatches.filter(
+      (match) => match.homeScore === null || match.awayScore === null
+    );
+
+    if (unfinishedMatches.length > 0) {
+      return res.status(400).json({
+        message: "Not all matches in the latest round are finished.",
+        unfinishedMatches,
+      });
+    }
+
+    const winners = latestRoundMatches.map((match) => {
+      return match.homeScore > match.awayScore ? match.homeTeamID : match.awayTeamID;
+    });
+
+    if (winners.length < 2) {
+      return res.status(400).json({ message: "Not enough winners to generate the next round." });
+    }
+
+    const shuffledWinners = winners.sort(() => 0.5 - Math.random());
+    const nextPowerOf2 = Math.pow(2, Math.ceil(Math.log2(shuffledWinners.length)));
+    const byesNeeded = nextPowerOf2 - shuffledWinners.length;
+
+    let byeTeam = await Team.findOne({ where: { name: "Bye", tournamentId } });
+    if (!byeTeam) {
+      byeTeam = await Team.create({
+        name: "Bye",
+        tournamentId,
+        leaderId: 1,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    }
+
+    for (let i = 0; i < byesNeeded; i++) {
+      shuffledWinners.push(byeTeam.id);
+    }
+
+    const nextRoundMatches = [];
+    for (let i = 0; i < shuffledWinners.length; i += 2) {
+      if (shuffledWinners[i] !== byeTeam.id && shuffledWinners[i + 1] !== byeTeam.id) {
+        nextRoundMatches.push({
+          tournamentId,
+          sport: tournament.sport,
+          homeTeamID: shuffledWinners[i],
+          awayTeamID: shuffledWinners[i + 1],
+          round: parseInt(latestRound) + 1,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+      } else {
+        const realTeamID =
+          shuffledWinners[i] === byeTeam.id ? shuffledWinners[i + 1] : shuffledWinners[i];
+        nextRoundMatches.push({
+          tournamentId,
+          sport: tournament.sport,
+          homeTeamID: realTeamID,
+          awayTeamID: byeTeam.id,
+          homeScore: 1,
+          awayScore: 0,
+          round: latestRound + 1,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+      }
+    }
+
+    await Match.bulkCreate(nextRoundMatches);
+
+    res.status(201).json({
+      message: `Round ${parseInt(latestRound) + 1} matches generated successfully.`,
+      matches: nextRoundMatches,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+
 module.exports = router;
