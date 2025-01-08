@@ -48,7 +48,22 @@ const OrganizerPanel = () => {
       const response = await axios.get(
         `http://localhost:5000/api/tournaments/${id}/downloadingMatches`
       );
-      setMatches(response.data);
+      
+      const matchData = response.data;
+      
+      const teamIds = [
+        ...new Set(matchData.flatMap((match) => [match.homeTeamID, match.awayTeamID])),
+      ];
+      
+      const teamNameMap = await fetchTeamNames(teamIds);
+      
+      const matchesWithNames = matchData.map((match) => ({
+        ...match,
+        homeTeamName: teamNameMap[match.homeTeamID] || "Unknown",
+        awayTeamName: teamNameMap[match.awayTeamID] || "Unknown",
+      }));
+      
+      setMatches(matchesWithNames);
     } catch (error) {
       console.error("Error fetching matches:", error);
       alert("Failed to fetch matches.");
@@ -56,6 +71,7 @@ const OrganizerPanel = () => {
       setMatchesLoading(false);
     }
   };
+  
 
   useEffect(() => {
     fetchTournament();
@@ -232,6 +248,25 @@ const OrganizerPanel = () => {
     }
   };
 
+  const fetchTeamNames = async (teamIds) => {
+    try {
+      const promises = teamIds.map((id) =>
+        axios.get(`http://localhost:5000/api/teams/${id}/name`)
+      );
+      const responses = await Promise.all(promises);
+      
+      const teamNameMap = {};
+      responses.forEach((response, index) => {
+        teamNameMap[teamIds[index]] = response.data.name;
+      });
+      return teamNameMap;
+    } catch (error) {
+      console.error("Error fetching team names:", error);
+      return {};
+    }
+  };
+  
+
   if (loading) return <div>Loading tournament data...</div>;
   if (error) return <div>{error}</div>;
   if (!tournament) return <div>No tournament data found</div>;
@@ -383,7 +418,7 @@ const OrganizerPanel = () => {
               {matches.map((match) => (
                 <li key={match.id} className="match-item">
                   <div>
-                    <strong>Match:</strong> {match.homeTeamID} vs{" "}
+                  <strong>Match:</strong> {match.homeTeamName} vs {match.awayTeamName}
                     {match.awayTeamID}
                   </div>
                   <div>
