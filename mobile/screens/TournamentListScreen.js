@@ -71,25 +71,6 @@ const TournamentsListScreen = () => {
         }
     };
 
-    const handleSignOutFromTeam = async (teamId) => {
-        const userId = await AsyncStorage.getItem('id');
-        try {
-            const response = await axios.delete(`http://10.0.2.2:5000/api/users/${userId}/${selectedTournament.id}/signout`, {
-                userId,
-                tournamentId: selectedTournament.id,
-                teamId,
-            });
-            if (response.status === 200) {
-                Alert.alert('Success', 'You have signed out from the team!');
-                setDetailsModalVisible(false);
-                fetchTeams(selectedTournament.id);
-            }
-        } catch (error) {
-            console.error('Error signing out:', error);
-            Alert.alert('Error', 'Failed to sign out from the team.');
-        }
-    };
-
     const handleCreateTeam = async () => {
         if (!teamName) {
             Alert.alert('Error', 'Please enter a team name');
@@ -151,7 +132,8 @@ const TournamentsListScreen = () => {
                     const formattedStartDate = new Date(item.startDate).toISOString().split('T')[0];
                     return (
                         <View style={styles.item}>
-                            <Text>{item.name}</Text>
+                            <Text style={styles.tournamentName}>{item.name}</Text>
+                            <Text>{item.sport}</Text>
                             <Text>{formattedStartDate}</Text>
                             <Text>{item.location}</Text>
                             <TouchableOpacity style={styles.button} onPress={() => handleViewDetails(item)}>
@@ -170,9 +152,10 @@ const TournamentsListScreen = () => {
                     onRequestClose={closeDetailsModal}
                 >
                     <View style={styles.modalContainer}>
-                        <ScrollView style={styles.modalContent}>
+                        <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }} style={styles.modalContent}>
                             <Text style={styles.modalTitle}>Tournament Details</Text>
                             <Text><Text style={styles.bold}>Name:</Text> {selectedTournament.name}</Text>
+                            <Text><Text style={styles.bold}>Sport:</Text> {selectedTournament.sport}</Text>
                             <Text><Text style={styles.bold}>Date:</Text> {new Date(selectedTournament.startDate).toLocaleDateString()}</Text>
                             <Text><Text style={styles.bold}>Location:</Text> {selectedTournament.location}</Text>
                             <Text><Text style={styles.bold}>Description:</Text> {selectedTournament.description || "No description available"}</Text>
@@ -199,12 +182,6 @@ const TournamentsListScreen = () => {
                                             onPress={() => handleSignUpForTeam(team.id)}
                                         >
                                             <Text style={styles.buttonText}>Sign Up</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity
-                                            style={styles.button}
-                                            onPress={() => handleSignOutFromTeam(team.id)}
-                                        >
-                                            <Text style={styles.buttonText}>Sign Out</Text>
                                         </TouchableOpacity>
                                         {viewingParticipantsForTeam === team.id && (
                                             <View>
@@ -261,6 +238,10 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: '#ccc',
     },
+    tournamentName: {
+        fontWeight: 'bold',
+        fontSize: 16,
+    },
     button: {
         marginTop: 10,
         backgroundColor: '#27ae60',
@@ -283,8 +264,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         borderRadius: 10,
         padding: 20,
-        flexGrow: 1,
-        marginBottom: 10,
+        flex: 1,
     },
     modalTitle: {
         fontSize: 18,
