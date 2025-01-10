@@ -3,6 +3,7 @@ import { View, TextInput, Button, Text, StyleSheet, TouchableOpacity, Image } fr
 import axios from 'axios';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import RNPickerSelect from 'react-native-picker-select';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 
 
@@ -16,6 +17,7 @@ const RegisterScreen = ({ navigation }) => {
   const [emailFocused, setEmailFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
   const [nicknameFocused, setNicknameFocused] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
 
   const register = async () => {
@@ -35,6 +37,13 @@ const RegisterScreen = ({ navigation }) => {
       setError('Registration failed: ' + error.message);
     }
   };
+
+  const handleDateChange = (event, selectedDate) => {
+    const currentDate = selectedDate || birthDate;
+    setShowDatePicker(false);
+    setBirthDate(currentDate.toISOString().split('T')[0]);
+  };
+
   return (
     <View style={styles.container}>
       <Image
@@ -81,13 +90,25 @@ const RegisterScreen = ({ navigation }) => {
 
 
 
-        <TextInput
-            placeholder="Birthdate (YYYY-MM-DD)"
-            value={birthDate}
-            onChangeText={setBirthDate}
-            style={[styles.input, birthDate && styles.inputFocused]}
-            keyboardType="default"
-        />
+        <TouchableOpacity
+            onPress={() => setShowDatePicker(true)}
+        >
+          <TextInput
+              placeholder="Birthdate (YYYY-MM-DD)"
+              value={birthDate}
+              editable={false}
+              style={[styles.input, birthDate && styles.inputFocused, birthDate && styles.inputBlack]}
+          />
+        </TouchableOpacity>
+
+        {showDatePicker && (
+            <DateTimePicker
+                value={new Date()}
+                mode="date"
+                display="default"
+                onChange={handleDateChange}
+            />
+        )}
 
         <TextInput
           placeholder="Password"
@@ -189,6 +210,9 @@ const styles = StyleSheet.create({
   loginLink: {
     color: '#ff6347',
     fontWeight: 'bold',
+  },
+  inputBlack:{
+    color: '#000',
   },
 });
 
