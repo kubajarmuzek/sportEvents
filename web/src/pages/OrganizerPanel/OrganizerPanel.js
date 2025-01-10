@@ -17,6 +17,9 @@ const OrganizerPanel = () => {
   const [matches, setMatches] = useState([]);
   const [matchesLoading, setMatchesLoading] = useState(false);
   const [scoreInputs, setScoreInputs] = useState({});
+  const [teams, setTeams] = useState([]);
+  const [participants, setParticipants] = useState([]);
+  const [selectedTeamId, setSelectedTeamId] = useState(null);
 
   const fetchTournament = async () => {
     try {
@@ -48,21 +51,21 @@ const OrganizerPanel = () => {
       const response = await axios.get(
         `http://localhost:5000/api/tournaments/${id}/downloadingMatches`
       );
-      
+
       const matchData = response.data;
-      
+
       const teamIds = [
         ...new Set(matchData.flatMap((match) => [match.homeTeamID, match.awayTeamID])),
       ];
-      
+
       const teamNameMap = await fetchTeamNames(teamIds);
-      
+
       const matchesWithNames = matchData.map((match) => ({
         ...match,
         homeTeamName: teamNameMap[match.homeTeamID] || "Unknown",
         awayTeamName: teamNameMap[match.awayTeamID] || "Unknown",
       }));
-      
+
       setMatches(matchesWithNames);
     } catch (error) {
       console.error("Error fetching matches:", error);
@@ -71,11 +74,12 @@ const OrganizerPanel = () => {
       setMatchesLoading(false);
     }
   };
-  
+
 
   useEffect(() => {
     fetchTournament();
     fetchMatches();
+    fetchTeams();
   }, [id]);
 
   useEffect(() => {
@@ -254,7 +258,7 @@ const OrganizerPanel = () => {
         axios.get(`http://localhost:5000/api/teams/${id}/name`)
       );
       const responses = await Promise.all(promises);
-      
+
       const teamNameMap = {};
       responses.forEach((response, index) => {
         teamNameMap[teamIds[index]] = response.data.name;
@@ -265,7 +269,54 @@ const OrganizerPanel = () => {
       return {};
     }
   };
-  
+
+  const fetchTeams = async () => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/tournaments/${id}/teams`);
+      setTeams(response.data);
+    } catch (error) {
+      console.error("Error fetching teams:", error);
+      alert("Failed to fetch teams.");
+    }
+  };
+
+  const fetchParticipants = async (teamId) => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/teams/${teamId}/participants`);
+      setParticipants(response.data);
+      setSelectedTeamId(teamId);
+    } catch (error) {
+      console.error("Error fetching participants:", error);
+      alert("Failed to fetch participants.");
+    }
+  };
+
+  const handleDeleteTeam = async (teamId) => {
+    if (!window.confirm("Are you sure you want to delete this team?")) return;
+
+    try {
+      await axios.delete(`http://localhost:5000/api/teams/${teamId}/delete`);
+      alert("Team deleted successfully.");
+      fetchTeams();
+    } catch (error) {
+      console.error("Error deleting team:", error);
+      alert("Failed to delete team.");
+    }
+  };
+
+  const handleDeleteParticipant = async (participantId) => {
+    if (!window.confirm("Are you sure you want to delete this participant?")) return;
+
+    try {
+      await axios.delete(`http://localhost:5000/api/participants/${participantId}`);
+      alert("Participant deleted successfully.");
+      fetchParticipants(selectedTeamId);
+    } catch (error) {
+      console.error("Error deleting participant:", error);
+      alert("Failed to delete participant.");
+    }
+  };
+
 
   if (loading) return <div>Loading tournament data...</div>;
   if (error) return <div>{error}</div>;
@@ -405,6 +456,43 @@ const OrganizerPanel = () => {
         </form>
       </div>
       <div className="start-tournament">
+        <div className="teams-section">
+          <h2>Teams</h2>
+          {teams.length > 0 ? (
+            <ul className="teams-list">
+              {teams.map((team) => (
+                <li key={team.id} className="team-item">
+                  <div>
+                    <strong>{team.name}</strong>
+                  </div>
+                  <button onClick={() => handleDeleteTeam(team.id)}>Delete Team</button>
+                  <button onClick={() => fetchParticipants(team.id)}>View Participants</button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div>No teams found for this tournament.</div>
+          )}
+
+          {selectedTeamId && participants.length > 0 && (
+            <div className="participants-section">
+              <h3>Participants for Team {teams.find((t) => t.id === selectedTeamId)?.name}</h3>
+              <ul className="participants-list">
+                {participants.map((participant) => (
+                  <li key={participant.id} className="participant-item">
+                    <div>
+                      <strong>{participant.nickname}</strong>
+                    </div>
+                    <button onClick={() => handleDeleteParticipant(participant.id)}>
+                      Delete Participant
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+
         <button onClick={handleStartTournament} className="form-button">
           Start Tournament
         </button>
@@ -418,8 +506,7 @@ const OrganizerPanel = () => {
               {matches.map((match) => (
                 <li key={match.id} className="match-item">
                   <div>
-                  <strong>Match:</strong> {match.homeTeamName} vs {match.awayTeamName}
-                    {match.awayTeamID}
+                    <strong>Match:</strong> {match.homeTeamName} vs {match.awayTeamName}
                   </div>
                   <div>
                     <strong>Round:</strong> {match.round}
