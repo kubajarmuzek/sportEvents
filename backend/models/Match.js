@@ -23,7 +23,7 @@ const Match = sequelize.define('Match',{
     },
     round:{
         type:DataTypes.STRING,
-        allowNull:false,
+        allowNull:true,
     },
 
     homeTeamID: {
