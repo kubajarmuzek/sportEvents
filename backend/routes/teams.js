@@ -51,6 +51,25 @@ router.delete('/:teamId/delete',async(req,res)=>{
   }
 
 });
+
+router.get('/:id/name', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const team = await Team.findByPk(id, {
+      attributes: ['name'],
+    });
+
+    if (!team) {
+      return res.status(404).json({ message: 'Team not found' });
+    }
+
+    return res.json({ name: team.name });
+  } catch (error) {
+    console.error('Error fetching team:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+});
   
 
 module.exports = router;
