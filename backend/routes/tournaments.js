@@ -452,4 +452,75 @@ router.post("/:tournamentId/round-robin/generate",async (req,res)=>{
     }
 });
 
+router.post("/:tournamentId/group/generate-groups", async (req, res) => {
+  const { tournamentId } = req.params;
+
+  try {
+    const tournament = await Tournament.findByPk(tournamentId);
+    if (!tournament) {
+      throw new Error("Tournament not found");
+    }
+
+    const teams = await Team.findAll({
+      where: { tournamentId },
+    });
+
+    if (teams.length < 2) {
+      return res
+          .status(400)
+          .json({ message: "Not enough teams to start the tournament." });
+    }
+
+    const shuffledTeams = teams.sort(() => 0.5 - Math.random());
+
+    const groups = [];
+    const groupSize = 4;
+    let currentGroup = [];
+
+    shuffledTeams.forEach((team, index) => {
+      currentGroup.push(team);
+      if (currentGroup.length === groupSize || index === shuffledTeams.length - 1) {
+        groups.push(currentGroup);
+        currentGroup = [];
+      }
+    });
+
+    const groupMatches = [];
+
+    groups.forEach((group, groupIndex) => {
+      for (let i = 0; i < group.length; i++) {
+        for (let j = i + 1; j < group.length; j++) {
+          groupMatches.push({
+            tournamentId,
+            sport: tournament.sport,
+            homeTeamID: group[i].id,
+            awayTeamID: group[j].id,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            group: groupIndex + 1,
+            round: 0,
+          });
+        }
+      }
+    });
+
+    if (groupMatches.length > 0) {
+      await Match.bulkCreate(groupMatches);
+    }
+
+    res.status(201).json({
+      message: "Group stage matches generated successfully.",
+      matches: groupMatches,
+      groups: groups.map((group, index) => ({
+        group: index + 1,
+        teams: group.map((team) => team.name),
+      })),
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+
 module.exports = router;
