@@ -96,7 +96,7 @@ router.post('/signup', async (req, res) => {
 
   try {
     const existingParticipant = await Participant.findOne({
-      where: { userId, tournamentId, teamId }
+      where: { userId, tournamentId }
     });
 
     if (existingParticipant) {
@@ -430,7 +430,7 @@ router.post("/:tournamentId/round-robin/generate",async (req,res)=>{
       for(let i=0;i<half-1;i++){
         matches.push({
           tournamentId,
-          sport: tournamentId,
+          sport: tournament.sport,
           homeTeamID: rotatingTeam[i].id,
           awayTeamID: rotatingTeam[rotatingTeam.length-2-i].id,
 
@@ -451,5 +451,92 @@ router.post("/:tournamentId/round-robin/generate",async (req,res)=>{
       res.status(500).json({message: "Tournament generation failed"})
     }
 });
+
+router.get("/:tournamentId/table",async(req,res)=>{
+  const {tournamentId}=req.params;
+
+  try{
+        const matches= await Match.findAll({
+          where: {tournamentId},
+          include: [
+            {
+              model: Team, as: 'homeTeam', atrributes:['id','name']
+            },
+            {
+              model: Team, as:'awayTeam', attributes:['id','name']
+            },
+          ],
+        });
+        const statistics= {};
+        matches.forEach((match) => {
+            const { homeTeam, awayTeam, homeScore, awayScore } = match;
+            if (homeScore !== null && awayScore !== null) {
+                if (!statistics[homeTeam.id]) {
+                    statistics[homeTeam.id] = {
+                        teamName: homeTeam.name,
+                        played: 0,
+                        won: 0,
+                        drawn: 0,
+                        lost: 0,
+                        goalsFor: 0,
+                        goalsAgainst: 0,
+                        goalDifference: 0,
+                        points: 0,
+                    };
+                }
+
+                if (!statistics[awayTeam.id]) {
+                    statistics[awayTeam.id] = {
+                        teamName: awayTeam.name,
+                        played: 0,
+                        won: 0,
+                        drawn: 0,
+                        lost: 0,
+                        goalsFor: 0,
+                        goalsAgainst: 0,
+                        goalDifference: 0,
+                        points: 0,
+                    };
+                }
+
+                statistics[homeTeam.id].played += 1;
+                statistics[homeTeam.id].goalsFor += homeScore;
+                statistics[homeTeam.id].goalsAgainst += awayScore;
+                statistics[homeTeam.id].goalDifference += homeScore - awayScore;
+
+                statistics[awayTeam.id].played += 1;
+                statistics[awayTeam.id].goalsFor += awayScore;
+                statistics[awayTeam.id].goalsAgainst += homeScore;
+                statistics[awayTeam.id].goalDifference += awayScore - homeScore;
+                if (homeScore > awayScore) {
+                    statistics[homeTeam.id].won += 1;
+                    statistics[awayTeam.id].lost += 1;
+                    statistics[homeTeam.id].points += 3;
+                } else if (homeScore < awayScore) {
+                    statistics[awayTeam.id].won += 1;
+                    statistics[homeTeam.id].lost += 1;
+                    statistics[awayTeam.id].points += 3;
+                } else {
+                    statistics[homeTeam.id].drawn += 1;
+                    statistics[awayTeam.id].drawn += 1;
+                    statistics[homeTeam.id].points += 1;
+                    statistics[awayTeam.id].points += 1;
+                }
+            }
+        });
+
+        const statisticsArray = Object.values(statistics).sort((a, b) => {
+            if (b.points !== a.points) return b.points - a.points;
+            if (b.goalDifference !== a.goalDifference) return b.goalDifference - a.goalDifference;
+            return b.goalsFor - a.goalsFor;
+        });
+
+        res.json(statisticsArray);
+  }catch(err){
+    res.status(500).json({message: "The competition table could not be created",error:err});
+    console.log(err);
+  }
+});
+
 
 module.exports = router;
