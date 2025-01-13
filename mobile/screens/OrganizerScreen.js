@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, Modal, Button, TextInput, TouchableOpacity, Alert, StyleSheet } from 'react-native';
+import { View, Text, FlatList, Modal, Button, TextInput, TouchableOpacity, Alert, StyleSheet, ScrollView } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -73,10 +73,10 @@ const OrganizerScreen = () => {
                     endpoint = `http://10.0.2.2:5000/api/tournaments/${tournament.id}/cup/generate-first-round`;
                     break;
                 case "round-robin":
-                    // Add the appropriate endpoint for round-robin
+                    endpoint = `http://10.0.2.2:5000/api/tournaments/${tournament.id}/round-robin/generate`;
                     break;
                 case "group and cup":
-                    // Add the appropriate endpoint for group and cup
+                    endpoint = `http://10.0.2.2:5000/api/tournaments/${tournament.id}/group/generate-groups`;
                     break;
                 case "double elimination system":
                     // Add the appropriate endpoint for double elimination
@@ -132,7 +132,6 @@ const OrganizerScreen = () => {
                     // Add the appropriate endpoint for round-robin
                     break;
                 case "group and cup":
-                    // Add the appropriate endpoint for group and cup
                     break;
                 case "double elimination system":
                     // Add the appropriate endpoint for double elimination
@@ -182,55 +181,56 @@ const OrganizerScreen = () => {
                             <Text style={styles.buttonText}>Start Tournament</Text>
                         </TouchableOpacity>
 
-                        <FlatList
-                            data={matches}
-                            keyExtractor={(item) => item.id.toString()}
-                            renderItem={({ item }) => (
-                                <View style={styles.matchCard}>
-                                    <Text>{`Match: ${item.homeTeamName} vs ${item.awayTeamName}`}</Text>
-                                    <Text>{`Round: ${item.round}`}</Text>
+                        <ScrollView style={styles.matchList}>
+                            {matches.map((item) => (
+                                <View key={item.id} style={styles.matchCard}>
+                                    <Text style={styles.matchTitle}>{`${item.homeTeamName} vs ${item.awayTeamName}`}</Text>
+                                    <Text style={styles.roundText}>{`Round: ${item.round}`}</Text>
+
                                     {item.homeScore === null && item.awayScore === null ? (
                                         <View style={styles.scoreInputContainer}>
+                                            <Text style={styles.scoreInputLabel}>Enter Scores:</Text>
                                             <TextInput
                                                 style={styles.scoreInput}
-                                                placeholder="Home Score"
+                                                placeholder="Home"
                                                 keyboardType="numeric"
                                                 value={scoreInputs[item.id]?.homeScore || ''}
                                                 onChangeText={(value) => handleScoreChange(item.id, 'homeScore', value)}
                                             />
                                             <TextInput
                                                 style={styles.scoreInput}
-                                                placeholder="Away Score"
+                                                placeholder="Away"
                                                 keyboardType="numeric"
                                                 value={scoreInputs[item.id]?.awayScore || ''}
                                                 onChangeText={(value) => handleScoreChange(item.id, 'awayScore', value)}
                                             />
-                                            <Button
-                                                title="Add Result"
-                                                onPress={() =>
-                                                    handleAddResult(item.id, scoreInputs[item.id]?.homeScore, scoreInputs[item.id]?.awayScore)
-                                                }
-                                            />
+                                            <TouchableOpacity
+                                                style={styles.submitButton}
+                                                onPress={() => handleAddResult(item.id, scoreInputs[item.id]?.homeScore, scoreInputs[item.id]?.awayScore)}
+                                            >
+                                                <Text style={styles.buttonText}>Add Result</Text>
+                                            </TouchableOpacity>
                                         </View>
                                     ) : (
-                                        <Text>{`Score: ${item.homeScore} - ${item.awayScore}`}</Text>
+                                        <Text style={styles.scoreText}>{`Score: ${item.homeScore} - ${item.awayScore}`}</Text>
                                     )}
                                 </View>
-                            )}
-                        />
+                            ))}
+                        </ScrollView>
+
                         <TouchableOpacity style={styles.button} onPress={handleStartNextRound}>
                             <Text style={styles.buttonText}>Start Next Round</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.button} onPress={() => setModalVisible(false)}>
                             <Text style={styles.buttonText}>Close</Text>
                         </TouchableOpacity>
-
                     </View>
                 </Modal>
             )}
         </View>
     );
 };
+
 
 const styles = StyleSheet.create({
     container: {
@@ -242,10 +242,64 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: '#ccc',
     },
-    header: {
+    tournamentName: {
+        fontWeight: 'bold',
+        fontSize: 16,
+    },
+    modalContainer: {
+        flex: 1,
+        padding: 16,
+        backgroundColor: '#fff',
+    },
+    modalHeader: {
         fontSize: 24,
         fontWeight: 'bold',
-        marginBottom: 16
+        marginBottom: 16,
+    },
+    matchList: {
+        marginTop: 16,
+    },
+    matchCard: {
+        padding: 16,
+        backgroundColor: '#f1f1f1',
+        marginBottom: 12,
+        borderRadius: 8,
+    },
+    matchTitle: {
+        fontWeight: 'bold',
+        fontSize: 16,
+    },
+    roundText: {
+        color: '#555',
+        marginVertical: 8,
+    },
+    scoreInputContainer: {
+        marginTop: 12,
+        marginBottom: 16,
+    },
+    scoreInputLabel: {
+        marginBottom: 8,
+        fontWeight: 'bold',
+    },
+    scoreInput: {
+        width: 100,
+        padding: 8,
+        marginHorizontal: 5,
+        borderColor: '#ccc',
+        borderWidth: 1,
+        borderRadius: 8,
+        textAlign: 'center',
+        fontSize: 16,
+    },
+    submitButton: {
+        backgroundColor: '#27ae60',
+        padding: 12,
+        borderRadius: 5,
+        alignItems: 'center',
+    },
+    scoreText: {
+        fontSize: 16,
+        fontWeight: 'bold',
     },
     button: {
         backgroundColor: '#27ae60',
@@ -258,38 +312,6 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontWeight: 'bold',
     },
-    tournamentName: {
-        fontWeight: 'bold',
-        fontSize: 16,
-    },
-    modalContainer: {
-        flex: 1,
-        padding: 16,
-        backgroundColor: '#fff'
-    },
-    modalHeader: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 16
-    },
-    matchCard: {
-        padding: 16,
-        backgroundColor: '#f1f1f1',
-        marginBottom: 8,
-        borderRadius: 8
-    },
-    scoreInputContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginTop: 8
-    },
-    scoreInput: {
-        flex: 1,
-        marginHorizontal: 8,
-        padding: 8,
-        borderWidth: 1,
-        borderColor: '#ccc',
-        borderRadius: 8 },
 });
 
 export default OrganizerScreen;

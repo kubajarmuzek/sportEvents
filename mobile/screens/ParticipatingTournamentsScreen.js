@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         borderRadius: 10,
         padding: 20,
-        flexGrow: 1,
+        flex: 1,
     },
     modalTitle: {
         fontSize: 18,
