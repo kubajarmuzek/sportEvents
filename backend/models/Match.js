@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 const MatchSet=require('./MatchSet');
+const Team=require('./Team');
 
 const Match = sequelize.define('Match',{
     id: {
@@ -25,7 +26,10 @@ const Match = sequelize.define('Match',{
         type:DataTypes.STRING,
         allowNull:true,
     },
-
+    bracket:{
+        type: DataTypes.ENUM('upper','lower','semifinal','final','third_place'),
+        allowNull:true,
+    },
     homeTeamID: {
         type: DataTypes.INTEGER,
         allowNull:false,
@@ -60,18 +64,19 @@ Match.associate=(models)=>{
         foreignKey: 'tournamentId',
         as: 'tournament',
     });
-    Match.belongsTo(models.Team,{
-        foreignKey:'homeTeamId',
-        as: 'homeTeam',
-    });
-   
-    Match.belongsTo(models.Team,{
-        foreignKey:'awayTeamId',
-        as: 'awayTeam'
-    });
 };
 Match.hasMany(MatchSet,{
     foreignKey: 'matchId',
     as: 'sets'
+});
+
+Match.belongsTo(Team,{
+    foreignKey:'homeTeamID',
+    as: 'homeTeam',
+});
+
+Match.belongsTo(Team,{
+    foreignKey:'awayTeamID',
+    as: 'awayTeam'
 });
 module.exports=Match;   
