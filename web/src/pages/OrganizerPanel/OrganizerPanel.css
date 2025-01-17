@@ -7,11 +7,10 @@ body {
   padding: 0;
   display: flex;
   justify-content: center;
-  align-items: flex-start;
   min-height: 100vh;
 }
 
-.container {
+.container-organizer {
   display: grid;
   grid-template-columns: 1fr 1fr; 
   gap: 10vw;
@@ -20,7 +19,7 @@ body {
   padding: 20px;
 }
 
-.container {
+.container-organizer {
   max-width: 800px;
   width: 100%;
   padding: 20px;

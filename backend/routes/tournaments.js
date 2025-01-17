@@ -445,7 +445,7 @@ router.post("/:tournamentId/round-robin/generate",async (req,res)=>{
     const allMatches=rounds.flat();
     await Match.bulkCreate(allMatches);
 
-    res.status(201).json(allMatches);
+    res.status(201).json({message: "Generated games for round-robin"});;
 
     }catch(err){
       res.status(500).json({message: "Tournament generation failed"})

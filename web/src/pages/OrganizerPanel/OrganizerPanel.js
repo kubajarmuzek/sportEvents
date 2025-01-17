@@ -173,7 +173,7 @@ const OrganizerPanel = () => {
           endpoint = `http://localhost:5000/api/tournaments/${id}/cup/generate-first-round`;
           break;
         case "round-robin":
-          // Add the appropriate endpoint for round-robin
+          endpoint = `http://localhost:5000/api/tournaments/${id}/round-robin/generate`;
           break;
         case "group and cup":
           // Add the appropriate endpoint for group and cup
@@ -323,7 +323,7 @@ const OrganizerPanel = () => {
   if (!tournament) return <div>No tournament data found</div>;
 
   return (
-    <div className="container">
+    <div className="container-organizer">
       <div className="form-container">
         <button
           onClick={handleGoBack}
