@@ -55,7 +55,9 @@ const OrganizerPanel = () => {
       const matchData = response.data;
 
       const teamIds = [
-        ...new Set(matchData.flatMap((match) => [match.homeTeamID, match.awayTeamID])),
+        ...new Set(
+          matchData.flatMap((match) => [match.homeTeamID, match.awayTeamID])
+        ),
       ];
 
       const teamNameMap = await fetchTeamNames(teamIds);
@@ -74,7 +76,6 @@ const OrganizerPanel = () => {
       setMatchesLoading(false);
     }
   };
-
 
   useEffect(() => {
     fetchTournament();
@@ -188,6 +189,7 @@ const OrganizerPanel = () => {
 
       const response = await axios.post(endpoint);
       alert(response.data.message);
+      fetchMatches()
     } catch (error) {
       console.error("Error starting tournament:", error);
       alert(error.response?.data?.message || "Failed to start the tournament.");
@@ -272,7 +274,9 @@ const OrganizerPanel = () => {
 
   const fetchTeams = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/tournaments/${id}/teams`);
+      const response = await axios.get(
+        `http://localhost:5000/api/tournaments/${id}/teams`
+      );
       setTeams(response.data);
     } catch (error) {
       console.error("Error fetching teams:", error);
@@ -282,7 +286,9 @@ const OrganizerPanel = () => {
 
   const fetchParticipants = async (teamId) => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/teams/${teamId}/participants`);
+      const response = await axios.get(
+        `http://localhost:5000/api/teams/${teamId}/participants`
+      );
       setParticipants(response.data);
       setSelectedTeamId(teamId);
     } catch (error) {
@@ -305,10 +311,13 @@ const OrganizerPanel = () => {
   };
 
   const handleDeleteParticipant = async (participantId) => {
-    if (!window.confirm("Are you sure you want to delete this participant?")) return;
+    if (!window.confirm("Are you sure you want to delete this participant?"))
+      return;
 
     try {
-      await axios.delete(`http://localhost:5000/api/participants/${participantId}`);
+      await axios.delete(
+        `http://localhost:5000/api/participants/${participantId}`
+      );
       alert("Participant deleted successfully.");
       fetchParticipants(selectedTeamId);
     } catch (error) {
@@ -316,7 +325,6 @@ const OrganizerPanel = () => {
       alert("Failed to delete participant.");
     }
   };
-
 
   if (loading) return <div>Loading tournament data...</div>;
   if (error) return <div>{error}</div>;
@@ -455,48 +463,59 @@ const OrganizerPanel = () => {
           </button>
         </form>
       </div>
-      <div className="start-tournament">
-        <div className="teams-section">
-          <h2>Teams</h2>
-          {teams.length > 0 ? (
-            <ul className="teams-list">
-              {teams.map((team) => (
-                <li key={team.id} className="team-item">
+
+      <div className="teams-section">
+        <h2>Teams</h2>
+        {teams.length > 0 ? (
+          <ul className="teams-list">
+            {teams.map((team) => (
+              <li key={team.id} className="team-item">
+                <div>
+                  <strong>{team.name}</strong>
+                </div>
+                <button onClick={() => handleDeleteTeam(team.id)}>
+                  Delete Team
+                </button>
+                {
+                  //<button onClick={() => fetchParticipants(team.id)}>View Participants</button>
+                }
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div>No teams found for this tournament.</div>
+        )}
+
+        {selectedTeamId && participants.length > 0 && (
+          <div className="participants-section">
+            <h3>
+              Participants for Team{" "}
+              {teams.find((t) => t.id === selectedTeamId)?.name}
+            </h3>
+            <ul className="participants-list">
+              {participants.map((participant) => (
+                <li key={participant.id} className="participant-item">
                   <div>
-                    <strong>{team.name}</strong>
+                    <strong>{participant.nickname}</strong>
                   </div>
-                  <button onClick={() => handleDeleteTeam(team.id)}>Delete Team</button>
-                  <button onClick={() => fetchParticipants(team.id)}>View Participants</button>
+                  <button
+                    onClick={() => handleDeleteParticipant(participant.id)}
+                  >
+                    Delete Participant
+                  </button>
                 </li>
               ))}
             </ul>
-          ) : (
-            <div>No teams found for this tournament.</div>
-          )}
+          </div>
+        )}
+      </div>
 
-          {selectedTeamId && participants.length > 0 && (
-            <div className="participants-section">
-              <h3>Participants for Team {teams.find((t) => t.id === selectedTeamId)?.name}</h3>
-              <ul className="participants-list">
-                {participants.map((participant) => (
-                  <li key={participant.id} className="participant-item">
-                    <div>
-                      <strong>{participant.nickname}</strong>
-                    </div>
-                    <button onClick={() => handleDeleteParticipant(participant.id)}>
-                      Delete Participant
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-
-        <button onClick={handleStartTournament} className="form-button">
-          Start Tournament
-        </button>
-
+      <div className="start-tournament">
+        {matches.length === 0 && (
+          <button onClick={handleStartTournament} className="form-button">
+            Start Tournament
+          </button>
+        )}
         <div className="matches-section">
           <h2>Matches</h2>
           {matchesLoading ? (
@@ -506,7 +525,8 @@ const OrganizerPanel = () => {
               {matches.map((match) => (
                 <li key={match.id} className="match-item">
                   <div>
-                    <strong>Match:</strong> {match.homeTeamName} vs {match.awayTeamName}
+                    <strong>Match:</strong> {match.homeTeamName} vs{" "}
+                    {match.awayTeamName}
                   </div>
                   <div>
                     <strong>Round:</strong> {match.round}
@@ -564,9 +584,11 @@ const OrganizerPanel = () => {
             <div>No matches found for this tournament.</div>
           )}
 
-          <button onClick={handleStartNextRound} className="form-button">
-            Start Next Round
-          </button>
+          {matches.length > 0 && tournament.tournamentSystem === "cup" && (
+            <button onClick={handleStartNextRound} className="form-button">
+              Start Next Round
+            </button>
+          )}
         </div>
       </div>
     </div>
