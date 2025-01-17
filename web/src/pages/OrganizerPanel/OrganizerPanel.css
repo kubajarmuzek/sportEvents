@@ -247,6 +247,14 @@ button {
 }
 
 .team-item button {
+  cursor: pointer !important;
+  position: relative;
+  z-index: 10;
+  pointer-events: auto !important;
+}
+
+
+.team-item button {
   padding: 8px 16px;
   font-size: 14px;
   border-radius: 6px;

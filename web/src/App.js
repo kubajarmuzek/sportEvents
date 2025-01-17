@@ -11,6 +11,7 @@ import Auth from "./pages/Auth/Auth";
 import { AuthContext } from "./context/AuthProvider";
 import React, { useContext } from "react";
 import OrganizerPanel from "./pages/OrganizerPanel/OrganizerPanel";
+import GameResults from "./pages/GameResults/GameResults";
 
 function App() {
   const { isAuthenticated } = useContext(AuthContext);
@@ -28,6 +29,7 @@ function App() {
           element={!isAuthenticated ? <Auth /> : <Navigate to="/home" />}
         />
         <Route path="/organizer-panel/:id" element={<OrganizerPanel />} />
+        <Route path="/game-results/:id" element={<GameResults />} />
       </Routes>
     </Router>
   );

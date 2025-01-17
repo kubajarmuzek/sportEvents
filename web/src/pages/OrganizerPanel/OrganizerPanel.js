@@ -332,7 +332,7 @@ const OrganizerPanel = () => {
 
   return (
     <div className="container-organizer">
-      <div className="form-container">
+      <div className="edit-form-container">
         <button
           onClick={handleGoBack}
           className="go-back-button"

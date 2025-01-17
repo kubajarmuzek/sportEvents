@@ -33,7 +33,8 @@
   }
   
   .view-details-button,
-  .close-modal-button {
+  .close-modal-button,
+  .see-results-button {
     padding: 6px 8px;
     border: none;
     border-radius: 5px;
@@ -47,12 +48,12 @@
     color: white;
   }
   
-  .view-details-button {
+  .view-details-button, .see-results-button {
     background: linear-gradient(145deg, #2e86c1, #1c5a7a);
-    font-size: 0.65rem;
+    font-size: 0.8rem;
   }
   
-  .view-details-button:hover {
+  .view-details-button:hover, .see-results-button:hover {
     background: linear-gradient(145deg, #1c5a7a, #2e86c1);
     transform: scale(1.05);
     box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
