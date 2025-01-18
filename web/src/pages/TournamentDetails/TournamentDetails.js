@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import "./TournamentDetails.css";
 
 const TournamentDetails = ({ selectedTournament, onClose }) => {
@@ -8,6 +9,8 @@ const TournamentDetails = ({ selectedTournament, onClose }) => {
   const [participants, setParticipants] = useState([]);
   const [viewingParticipantsForTeam, setViewingParticipantsForTeam] =
     useState(null);
+
+  const navigate = useNavigate();
 
   const fetchTeams = async (tournamentId) => {
     try {
@@ -81,6 +84,10 @@ const TournamentDetails = ({ selectedTournament, onClose }) => {
       setViewingParticipantsForTeam(teamId);
     }
   };
+
+  const goToResults= () => {
+    navigate(`/game-results/${selectedTournament.id}`)
+  }
 
   useEffect(() => {
     if (selectedTournament?.id) {
@@ -183,6 +190,9 @@ const TournamentDetails = ({ selectedTournament, onClose }) => {
 
         <button className="close-modal-button" onClick={onClose}>
           Close
+        </button>
+        <button className="see-results-button" onClick={goToResults}>
+          See Results
         </button>
       </div>
     </div>

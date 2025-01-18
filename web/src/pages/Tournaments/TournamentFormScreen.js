@@ -103,6 +103,7 @@ const TournamentFormScreen = () => {
 
     try {
       await axios.post("http://localhost:5000/api/tournaments", formData);
+      window.location.reload(true);
       alert("Tournament created successfully!");
     } catch (error) {
       console.error("Error creating tournament:", error);
