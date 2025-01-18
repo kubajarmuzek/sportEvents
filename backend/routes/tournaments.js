@@ -607,5 +607,338 @@ router.get("/:tournamentId/table",async(req,res)=>{
   }
 });
 
+router.post('/:tournamentId/doubleEliminationSystem/startTournament', async (req, res) => {
+  try {
+      const { tournamentId } = req.params;
+      const tournament = await Tournament.findByPk(tournamentId);
+
+      if (!tournament) {
+          return res.status(404).json({ error: 'The tournament does not exist ' });
+      }
+
+      const existingMatches = await Match.findOne({ where: { tournamentId } });
+
+      if (existingMatches) {
+          return res.status(400).json({ error: 'The tournament has already started. Matches are already generated.' });
+      }
+
+      const teams = await Team.findAll({ where: { tournamentId} });
+
+      if (![8, 16].includes(teams.length)) {
+          return res.status(400).json({ error: 'The tournament must have 8 or 16 teams' });
+      }
+
+      const shuffledTeams = teams.sort(() => Math.random() - 0.5);
+      const initialMatches = [];
+
+      for (let i = 0; i < shuffledTeams.length; i += 2) {
+          initialMatches.push({
+              tournamentId,
+              sport: tournament.sport,
+              round: '1',
+              bracket: 'upper',
+              homeTeamID: shuffledTeams[i].id,
+              awayTeamID: shuffledTeams[i + 1].id,
+              homeScore: null,
+              awayScore: null,
+          });
+      }
+
+      await Match.bulkCreate(initialMatches);
+
+      res.json({ message: 'First round of the tournament generated successfully' });
+  } catch (error) {
+      res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/:tournamentId/doubleEliminationSystem/generateNextRound', async (req, res) => {
+  try {
+      const { tournamentId } = req.params;
+      const tournament = await Tournament.findByPk(tournamentId);
+
+      if (!tournament) {
+          return res.status(404).json({ error: 'The tournament does not exist ' });
+      }
+
+      const teams = await Team.findAll({ where: { tournamentId } });
+
+      if (!teams || teams.length === 0) {
+          return res.status(400).json({ error: 'No teams in the tournament' });
+      }
+
+      const matches = await Match.findAll({
+          where: { tournamentId },
+          order: [['round', 'DESC']]
+      });
+
+      if (matches.length === 0) {
+          return res.status(400).json({ error: 'No matches played, next round of the tournament cannot be generated.' });
+      }
+
+      const numTeams = teams.length;
+      const upperRoundLimit = numTeams === 8 ? 2 : 3;
+      const lowerRoundLimit = numTeams === 8 ? 2 : 4;
+
+      const upperBracketMatches = matches.filter(m => m.bracket === 'upper');
+      const lowerBracketMatches = matches.filter(m => m.bracket === 'lower');
+
+      const lastUpperRound = upperBracketMatches.length > 0 
+          ? Math.max(...upperBracketMatches.map(m => parseInt(m.round)))
+          : 0;
+      
+      const lastLowerRound = lowerBracketMatches.length > 0 
+          ? Math.max(...lowerBracketMatches.map(m => parseInt(m.round)))
+          : 0;
+
+      if (lastUpperRound >= upperRoundLimit && lastLowerRound >= lowerRoundLimit) {
+          return res.json({ message: 'Generate semi-finals' });
+      }
+
+      const nextUpperRound = lastUpperRound < upperRoundLimit ? `${lastUpperRound + 1}` : null;
+      const nextLowerRound = lastLowerRound < lowerRoundLimit ? `${lastLowerRound + 1}` : null;
+
+      const lastUpperRoundMatches = upperBracketMatches.filter(m => m.round === `${lastUpperRound}`);
+      const lastLowerRoundMatches = lowerBracketMatches.filter(m => m.round === `${lastLowerRound}`);
+
+      let upperBracketTeams = [];
+      let lowerBracketTeams = [];
+
+      for (const match of lastUpperRoundMatches) {
+          if (match.homeScore === null || match.awayScore === null) {
+              return res.status(400).json({ error: 'Not all matches of the previous round in the upper bracket were played.' });
+          }
+
+          const result = match.homeScore > match.awayScore
+              ? { winner: match.homeTeamID, loser: match.awayTeamID }
+              : { winner: match.awayTeamID, loser: match.homeTeamID };
+
+          upperBracketTeams.push(result.winner);
+          lowerBracketTeams.push(result.loser);
+      }
+
+      for (const match of lastLowerRoundMatches) {
+          if (match.homeScore === null || match.awayScore === null) {
+              return res.status(400).json({ error: 'Not all matches of the previous round in the lower bracket were played.' });
+          }
+
+          const result = match.homeScore > match.awayScore
+              ? { winner: match.homeTeamID }
+              : { winner: match.awayTeamID };
+
+          lowerBracketTeams.push(result.winner);
+      }
+
+      const newMatches = [];
+
+      if (nextUpperRound && upperBracketTeams.length > 1) {
+          for (let i = 0; i < upperBracketTeams.length; i += 2) {
+              if (upperBracketTeams[i + 1]) {
+                  newMatches.push({
+                      tournamentId,
+                      sport: tournament.sport,
+                      round: nextUpperRound,
+                      bracket: 'upper',
+                      homeTeamID: upperBracketTeams[i],
+                      awayTeamID: upperBracketTeams[i + 1],
+                      homeScore: null,
+                      awayScore: null,
+                  });
+              }
+          }
+      }
+
+      if (nextLowerRound && lowerBracketTeams.length > 1) {
+          for (let i = 0; i < lowerBracketTeams.length; i += 2) {
+              if (lowerBracketTeams[i + 1]) {
+                  newMatches.push({
+                      tournamentId,
+                      sport: tournament.sport,
+                      round: nextLowerRound,
+                      bracket: 'lower',
+                      homeTeamID: lowerBracketTeams[i],
+                      awayTeamID: lowerBracketTeams[i + 1],
+                      homeScore: null,
+                      awayScore: null,
+                  });
+              }
+          }
+      }
+
+      if (newMatches.length === 0) {
+          return res.json({ message: 'Generate semi-final matches' });
+      }
+
+      await Match.bulkCreate(newMatches);
+
+      res.json({ message: `The next rounds of the tournament have been generated` });
+
+  } catch (error) {
+      res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/:tournamentId/doubleEliminationSystem/generateSemifinals', async (req, res) => {
+  try {
+    const { tournamentId } = req.params;
+    const tournament = await Tournament.findByPk(tournamentId);
+
+    if (!tournament) {
+      return res.status(404).json({ error: 'The tournament does not exist' });
+    }
+
+    const matches = await Match.findAll({
+      where: { tournamentId },
+      order: [['round', 'ASC']],
+    });
+
+    if (matches.length === 0) {
+      return res.status(400).json({ error: 'The matches of the previous round have not been completed yet' });
+    }
+    const existingSemifinalMatches = await Match.findAll({
+      where: {
+        tournamentId,
+        round: 'semi',
+        bracket: 'final',
+      },
+    });
+
+    if (existingSemifinalMatches.length > 0) {
+      return res.status(400).json({ error: 'The semi-final matches have already been generated.' });
+    }
+
+    const teams = await Team.findAll({ where: { tournamentId} });
+    const numTeams = teams.length;
+
+    let upperRoundLimit, lowerRoundLimit;
+    let upperRoundMatches, lowerRoundMatches;
+
+    if (numTeams === 8) {
+      upperRoundLimit = 2;
+      lowerRoundLimit = 2;
+      upperRoundMatches = matches.filter(m => m.bracket === 'upper' && m.round === '2');
+      lowerRoundMatches = matches.filter(m => m.bracket === 'lower' && m.round === '2');
+    } else if (numTeams === 16) {
+      upperRoundLimit = 3;
+      lowerRoundLimit = 4;
+      upperRoundMatches = matches.filter(m => m.bracket === 'upper' && m.round === '3');
+      lowerRoundMatches = matches.filter(m => m.bracket === 'lower' && m.round === '4');
+    } else {
+      return res.status(400).json({ error: 'The number of teams must be 8 or 16' });
+    }
+
+    if (upperRoundMatches.length !== upperRoundLimit || lowerRoundMatches.length !== lowerRoundLimit) {
+      return res.status(400).json({ error: 'Not all rounds have been played yet. Generate next rounds' });
+    }
+    const winnersUpper = upperRoundMatches.map(m => m.homeScore > m.awayScore ? m.homeTeamID : m.awayTeamID);
+    const winnersLower = lowerRoundMatches.map(m => m.homeScore > m.awayScore ? m.homeTeamID : m.awayTeamID);
+
+    const semifinalMatches = [
+      {
+        tournamentId,
+        sport: tournament.sport,
+        round: 'semi',
+        bracket: 'final',
+        homeTeamID: winnersUpper[0], 
+        awayTeamID: winnersLower[0],  
+        homeScore: null,
+        awayScore: null,
+      },
+      {
+        tournamentId,
+        sport: tournament.sport,
+        round: 'semi',
+        bracket: 'final',
+        homeTeamID: winnersUpper[1],  
+        awayTeamID: winnersLower[1],  
+        homeScore: null,
+        awayScore: null,
+      }
+    ];
+
+    await Match.bulkCreate(semifinalMatches);
+
+    return res.json({ message: 'Semi-final matches generated!' });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/:tournamentId/doubleEliminationSystem/generateFinalsAndThirdPlace', async (req, res) => {
+  try {
+    const { tournamentId } = req.params;
+    const tournament = await Tournament.findByPk(tournamentId);
+
+    if (!tournament) {
+      return res.status(404).json({ error: 'The tournament does not exist' });
+    }
+
+    const existingFinalMatches = await Match.findAll({
+      where: {
+        tournamentId,
+        round: ['final', 'third_place'],
+        bracket: 'final',
+      },
+    });
+
+    if (existingFinalMatches.length > 0) {
+      return res.status(400).json({ error: 'The final matches and the 3rd place match have already been generated.' });
+    }
+
+    const semifinalMatches = await Match.findAll({
+      where: {
+        tournamentId,
+        round: 'semi',
+        bracket: 'final',
+      },
+    });
+
+    if (semifinalMatches.length !== 2) {
+      return res.status(400).json({ error: 'Not enough games were played' });
+    }
+    const completedSemifinalMatches = semifinalMatches.filter(m => m.homeScore !== null && m.awayScore !== null);
+
+    if (completedSemifinalMatches.length !== 2) {
+      return res.status(400).json({ error: 'The semi-final has not been played yet' });
+    }
+
+    const winner1 = completedSemifinalMatches[0].homeScore > completedSemifinalMatches[0].awayScore ? completedSemifinalMatches[0].homeTeamID : completedSemifinalMatches[0].awayTeamID;
+    const winner2 = completedSemifinalMatches[1].homeScore > completedSemifinalMatches[1].awayScore ? completedSemifinalMatches[1].homeTeamID : completedSemifinalMatches[1].awayTeamID;
+    const loser1 = completedSemifinalMatches[0].homeScore < completedSemifinalMatches[0].awayScore ? completedSemifinalMatches[0].homeTeamID : completedSemifinalMatches[0].awayTeamID;
+    const loser2 = completedSemifinalMatches[1].homeScore < completedSemifinalMatches[1].awayScore ? completedSemifinalMatches[1].homeTeamID : completedSemifinalMatches[1].awayTeamID;
+
+    const finalMatch = {
+      tournamentId,
+      sport: tournament.sport,
+      round: 'final',
+      bracket: 'final',
+      homeTeamID: winner1,
+      awayTeamID: winner2,
+      homeScore: null,
+      awayScore: null,
+    };
+
+    const thirdPlaceMatch = {
+      tournamentId,
+      sport: tournament.sport,
+      round: 'third_place',
+      bracket: 'final',
+      homeTeamID: loser1,
+      awayTeamID: loser2,
+      homeScore: null,
+      awayScore: null,
+    };
+
+    await Match.bulkCreate([thirdPlaceMatch,finalMatch]);
+
+    return res.json({ message: 'The final and the match for 3rd place have been generated!' });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+});
 
 module.exports = router;
