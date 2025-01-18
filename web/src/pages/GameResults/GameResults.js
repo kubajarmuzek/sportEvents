@@ -11,6 +11,18 @@ const GameResults = () => {
   const [teams, setTeams] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [tournamentType, setTournamentType] = useState("");
+  const [tableData, setTableData] = useState([]);
+
+  const fetchTournamentType = async () => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/tournaments/${id}`);
+      setTournamentType(response.data.tournamentSystem);
+    } catch (error) {
+      console.error("Error fetching tournament type:", error);
+      alert("Failed to fetch tournament type.");
+    }
+  };
 
   const fetchTeams = async () => {
     try {
@@ -31,6 +43,17 @@ const GameResults = () => {
     }
   };
 
+  const fetchTableData = async () => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/tournaments/${id}/table`);
+      setTableData(response.data);
+      console.log(tableData)
+    } catch (error) {
+      console.error("Error fetching table data:", error);
+      alert("Failed to fetch table data.");
+    }
+  };
+
   const fetchMatchResults = async () => {
     setLoading(true);
     try {
@@ -47,9 +70,18 @@ const GameResults = () => {
   };
 
   useEffect(() => {
-    fetchTeams();
-    fetchMatchResults();
-  }, [id]);
+    const fetchData = async () => {
+      await fetchTournamentType();
+      fetchTeams();
+      fetchMatchResults();
+  
+      if (tournamentType === "round-robin") {
+        fetchTableData();
+      }
+    };
+  
+    fetchData();
+  }, [id, tournamentType]);
 
   const handleGoBack = () => {
     navigate(-1);
@@ -89,6 +121,42 @@ const GameResults = () => {
           </li>
         ))}
       </ul>
+
+      {tournamentType === "round-robin" && tableData.length > 0 && (
+        <div className="table-container">
+          <h2>Standings</h2>
+          <table className="standings-table">
+            <thead>
+              <tr>
+                <th>Team</th>
+                <th>Played</th>
+                <th>Won</th>
+                <th>Drawn</th>
+                <th>Lost</th>
+                <th>GF</th>
+                <th>GA</th>
+                <th>GD</th>
+                <th>Points</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tableData.map((team, index) => (
+                <tr key={index}>
+                  <td>{team.teamName}</td>
+                  <td>{team.played}</td>
+                  <td>{team.won}</td>
+                  <td>{team.drawn}</td>
+                  <td>{team.lost}</td>
+                  <td>{team.goalsFor}</td>
+                  <td>{team.goalsAgainst}</td>
+                  <td>{team.goalDifference}</td>
+                  <td>{team.points}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 };

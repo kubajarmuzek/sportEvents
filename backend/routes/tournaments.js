@@ -50,6 +50,26 @@ router.get('/', async (req, res) => {
   }
 });
 
+router.get('/:tournamentId', async (req, res) => {
+  const { tournamentId } = req.params;
+
+  try {
+    const tournament = await Tournament.findOne({
+      where: { id: tournamentId },
+      attributes: ['id', 'name', 'tournamentSystem'],
+    });
+
+    if (!tournament) {
+      return res.status(404).json({ message: "Tournament not found." });
+    }
+
+    res.status(200).json(tournament);
+  } catch (error) {
+    console.error("Error fetching tournament:", error);
+    res.status(500).json({ message: "Failed to fetch tournament.", error });
+  }
+});
+
 router.post('/:tournamentId/teams', async (req, res) => {
   const { name, leaderId } = req.body;
   const { tournamentId } = req.params;
