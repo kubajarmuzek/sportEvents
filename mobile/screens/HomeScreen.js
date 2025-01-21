@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Animated, StyleSheet, Dimensions, FlatList } from 'react-native';
+import { View, Text, TouchableOpacity, Animated, StyleSheet, Dimensions, FlatList, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import TournamentsListScreen from './TournamentListScreen';
 import ParticipatingTournamentsScreen from './ParticipatingTournamentsScreen';
@@ -53,43 +53,43 @@ const HomeScreen = ({ navigation }) => {
 
   return (
       <View style={styles.container}>
-        <FlatList
-            ListHeaderComponent={
-              <>
-                <Text style={styles.heading}>Welcome, {nickname}!</Text>
-
-                <View style={styles.toggleContainer}>
-                  {['Available', 'Participating', 'Organizing'].map((tab, index) => (
-                      <TouchableOpacity
-                          key={tab}
-                          style={styles.option}
-                          onPress={() => switchTo(tab)}
-                      >
-                        <Text
-                            style={[
-                              styles.toggleText,
-                              activeTab === tab && styles.activeText,
-                            ]}
-                        >
-                          {tab}
-                        </Text>
-                      </TouchableOpacity>
-                  ))}
-
-                  <Animated.View
+        <View style={styles.headerContainer}>
+          <Text style={styles.heading}>Welcome, {nickname}!</Text>
+          <View style={styles.toggleContainer}>
+            {['Available', 'Participating', 'Organizing'].map((tab, index) => (
+                <TouchableOpacity
+                    key={tab}
+                    style={styles.option}
+                    onPress={() => switchTo(tab)}
+                >
+                  <Text
                       style={[
-                        styles.slider,
-                        { left: slideAnim, width: width * 0.3 },
+                        styles.toggleText,
+                        activeTab === tab && styles.activeText,
                       ]}
                   >
-                    <Text style={styles.sliderButtonText}>{activeTab}</Text>
-                  </Animated.View>
-                </View>
-              </>
-            }
-            data={[]}
+                    {tab}
+                  </Text>
+                </TouchableOpacity>
+            ))}
+
+            <Animated.View
+                style={[
+                  styles.slider,
+                  { left: slideAnim, width: width * 0.3 },
+                ]}
+            >
+              <Text style={styles.sliderButtonText}>{activeTab}</Text>
+            </Animated.View>
+          </View>
+        </View>
+
+        {/* Scrollable Content */}
+        <FlatList
+            contentContainerStyle={{ paddingTop: 120 }}  // Added space for the fixed header
             ListFooterComponent={renderContent}
             keyExtractor={(item, index) => index.toString()}
+            data={[]}
         />
       </View>
   );
@@ -100,26 +100,36 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
+  headerContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#fff',
+    zIndex: 1,
+    paddingTop: 20,
+    paddingBottom: 10,
+    paddingLeft: 15,
+    paddingRight: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+    width: '100%',
+  },
   heading: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20,
-    marginTop: 20,
     textAlign: 'center',
   },
   toggleContainer: {
-    margin: width * 0.05,
-    width: width * 0.9,
+    marginTop: 10,
+    width: '100%',
     height: 50,
     borderRadius: 25,
     borderColor: '#ddd',
     borderWidth: 1,
     overflow: 'hidden',
-    marginBottom: 40,
     flexDirection: 'row',
-  },
-  subHeading: {
-    textAlign: 'center',
+    marginBottom: 20,
   },
   option: {
     flex: 1,

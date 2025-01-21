@@ -9,6 +9,8 @@ const OrganizerScreen = () => {
     const [matches, setMatches] = useState([]);
     const [scoreInputs, setScoreInputs] = useState({});
     const [modalVisible, setModalVisible] = useState(false);
+    const [tableData, setTableData] = useState([]);
+    const [tournamentType, setTournamentType] = useState('');
 
 
     const fetchTournaments = async () => {
@@ -49,6 +51,14 @@ const OrganizerScreen = () => {
             }));
 
             setMatches(matchesWithNames);
+            const tournamentResponse = await axios.get(
+                `http://10.0.2.2:5000/api/tournaments/${tournamentId}`
+            );
+            const tableResponse = await axios.get(
+                `http://10.0.2.2:5000/api/tournaments/${tournamentId}/table`
+            );
+            setTableData(tableResponse.data);
+            setTournamentType(tournamentResponse.data.tournamentSystem);
         } catch (error) {
             console.error("Error fetching matches or team names:", error);
             alert("Failed to fetch matches or team names.");
@@ -68,7 +78,7 @@ const OrganizerScreen = () => {
             const tournament = allTournaments.find((tournament) => tournament.id === selectedTournament.id);
             let endpoint = "";
 
-            switch (tournament.tournamentSystem) {
+            switch (tournamentType) {
                 case "cup":
                     endpoint = `http://10.0.2.2:5000/api/tournaments/${tournament.id}/cup/generate-first-round`;
                     break;
@@ -79,7 +89,7 @@ const OrganizerScreen = () => {
                     endpoint = `http://10.0.2.2:5000/api/tournaments/${tournament.id}/group/generate-groups`;
                     break;
                 case "double elimination system":
-                    // Add the appropriate endpoint for double elimination
+                    endpoint = `http://10.0.2.2:5000/api/tournaments/${tournament.id}/doubleEliminationSystem/startTournament`;
                     break;
                 default:
                     alert("Please select a valid tournament system.");
@@ -124,7 +134,7 @@ const OrganizerScreen = () => {
             const tournament = allTournaments.find((tournament) => tournament.id === selectedTournament.id);
             let endpoint = "";
 
-            switch (tournament.tournamentSystem) {
+            switch (tournamentType) {
                 case "cup":
                     endpoint = `http://10.0.2.2:5000/api/tournaments/${tournament.id}/cup/generate-next-round`;
                     break;
@@ -132,9 +142,10 @@ const OrganizerScreen = () => {
                     // Add the appropriate endpoint for round-robin
                     break;
                 case "group and cup":
+                    endpoint = `http://10.0.2.2:5000/api/tournaments/${tournament.id}/group/generate-first-round`;
                     break;
                 case "double elimination system":
-                    // Add the appropriate endpoint for double elimination
+                    endpoint = `http://10.0.2.2:5000/api/tournaments/${tournament.id}/doubleEliminationSystem/generateNextRound`;
                     break;
                 default:
                     alert("Please select a valid tournament system.");
@@ -182,8 +193,36 @@ const OrganizerScreen = () => {
                         </TouchableOpacity>
 
                         <ScrollView style={styles.matchList}>
+                            {tournamentType === 'round-robin' && tableData.length > 0 && (
+                                <>
+                                    <Text style={styles.modalSubTitle}>Standings</Text>
+                                    <View style={styles.table}>
+                                        <View style={styles.tableRow}>
+                                            <Text style={styles.tableHeader}>Team</Text>
+                                            <Text style={styles.tableHeader}>Played</Text>
+                                            <Text style={styles.tableHeader}>Won</Text>
+                                            <Text style={styles.tableHeader}>Drawn</Text>
+                                            <Text style={styles.tableHeader}>Lost</Text>
+                                            <Text style={styles.tableHeader}>Points</Text>
+                                        </View>
+                                        {tableData.map((team, index) => (
+                                            <View key={index} style={styles.tableRow}>
+                                                <Text style={styles.tableCell}>{team.teamName}</Text>
+                                                <Text style={styles.tableCell}>{team.played}</Text>
+                                                <Text style={styles.tableCell}>{team.won}</Text>
+                                                <Text style={styles.tableCell}>{team.drawn}</Text>
+                                                <Text style={styles.tableCell}>{team.lost}</Text>
+                                                <Text style={styles.tableCell}>{team.points}</Text>
+                                            </View>
+                                        ))}
+                                    </View>
+                                </>
+                            )}
+                            <Text style={styles.modalSubTitle}>Match Results</Text>
                             {matches.map((item) => (
                                 <View key={item.id} style={styles.matchCard}>
+
+
                                     <Text style={styles.matchTitle}>{`${item.homeTeamName} vs ${item.awayTeamName}`}</Text>
                                     <Text style={styles.roundText}>{`Round: ${item.round}`}</Text>
 
@@ -236,6 +275,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#f5f5f5',
+        marginTop: 20,
     },
     item: {
         padding: 20,
@@ -311,6 +351,40 @@ const styles = StyleSheet.create({
     buttonText: {
         color: '#fff',
         fontWeight: 'bold',
+    },
+    table: {
+        marginTop: 20,
+        borderRadius: 8,
+        overflow: 'hidden',
+        backgroundColor: '#fff',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 5,
+        elevation: 3,
+    },
+    tableRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingVertical: 10,
+        paddingHorizontal: 15,
+        borderBottomWidth: 1,
+        borderBottomColor: '#ddd',
+    },
+    tableHeader: {
+        fontWeight: 'bold',
+        flex: 1,
+        textAlign: 'center',
+    },
+    tableCell: {
+        flex: 1,
+        textAlign: 'center',
+    },
+    modalSubTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginTop: 20,
+        marginBottom: 10,
     },
 });
 
