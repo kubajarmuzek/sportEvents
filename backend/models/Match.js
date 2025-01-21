@@ -56,6 +56,10 @@ const Match = sequelize.define('Match',{
         type: DataTypes.INTEGER,
         allowNull:true
     },
+    group: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+    },
     
 });
 

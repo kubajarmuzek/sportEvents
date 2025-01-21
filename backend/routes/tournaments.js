@@ -517,8 +517,8 @@ router.post("/:tournamentId/group/generate-groups", async (req, res) => {
             awayTeamID: group[j].id,
             createdAt: new Date(),
             updatedAt: new Date(),
-            group: groupIndex + 1,
-            round: 0,
+            group: groupIndex + 1,  // Set group for group-stage matches
+            round: 0,  // Group stage round
           });
         }
       }
@@ -535,6 +535,173 @@ router.post("/:tournamentId/group/generate-groups", async (req, res) => {
         group: index + 1,
         teams: group.map((team) => team.name),
       })),
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+
+router.post("/:tournamentId/group/generate-first-round", async (req, res) => {
+  const { tournamentId } = req.params;
+
+  try {
+    const tournament = await Tournament.findByPk(tournamentId);
+    if (!tournament) {
+      return res.status(404).json({ message: "Tournament not found" });
+    }
+
+    const sport = tournament.sport;
+
+    const matches = await Match.findAll({
+      where: { tournamentId },
+      include: [
+        {
+          model: Team,
+          as: 'homeTeam',
+          attributes: ['id', 'name'],
+        },
+        {
+          model: Team,
+          as: 'awayTeam',
+          attributes: ['id', 'name'],
+        },
+      ],
+    });
+
+    const groupStandings = {};
+
+    matches.forEach((match) => {
+      const { homeTeam, awayTeam, homeScore, awayScore, group } = match;
+
+      if (!groupStandings[group]) {
+        groupStandings[group] = [];
+      }
+
+      if (!groupStandings[group].find(team => team.teamId === homeTeam.id)) {
+        groupStandings[group].push({
+          teamId: homeTeam.id,
+          name: homeTeam.name,
+          points: 0,
+          goalDifference: 0,
+          goalsFor: 0,
+          goalsAgainst: 0,
+        });
+      }
+
+      if (!groupStandings[group].find(team => team.teamId === awayTeam.id)) {
+        groupStandings[group].push({
+          teamId: awayTeam.id,
+          name: awayTeam.name,
+          points: 0,
+          goalDifference: 0,
+          goalsFor: 0,
+          goalsAgainst: 0,
+        });
+      }
+
+      const homeTeamStats = groupStandings[group].find(team => team.teamId === homeTeam.id);
+      const awayTeamStats = groupStandings[group].find(team => team.teamId === awayTeam.id);
+
+      homeTeamStats.goalsFor += homeScore;
+      homeTeamStats.goalsAgainst += awayScore;
+      homeTeamStats.goalDifference += (homeScore - awayScore);
+
+      awayTeamStats.goalsFor += awayScore;
+      awayTeamStats.goalsAgainst += homeScore;
+      awayTeamStats.goalDifference += (awayScore - homeScore);
+
+      if (homeScore > awayScore) {
+        homeTeamStats.points += 3;
+      } else if (awayScore > homeScore) {
+        awayTeamStats.points += 3;
+      } else {
+        homeTeamStats.points += 1;
+        awayTeamStats.points += 1;
+      }
+    });
+
+    console.log("Group Standings:", groupStandings);
+
+    const firstPlaceTeams = [];
+    const secondPlaceTeams = [];
+
+    for (const group in groupStandings) {
+      const groupTeams = groupStandings[group];
+
+      groupTeams.sort((a, b) => {
+        if (b.points !== a.points) return b.points - a.points;
+        if (b.goalDifference !== a.goalDifference) return b.goalDifference - a.goalDifference;
+        return b.goalsFor - a.goalsFor;
+      });
+
+      console.log(`Sorted teams for group ${group}:`, groupTeams);
+
+      if (groupTeams.length >= 2) {
+        firstPlaceTeams.push(groupTeams[0]);
+        secondPlaceTeams.push(groupTeams[1]);
+      } else {
+        console.error(`Group ${group} does not have enough teams.`);
+      }
+    }
+
+    console.log("First place teams:", firstPlaceTeams);
+    console.log("Second place teams:", secondPlaceTeams);
+
+    if (firstPlaceTeams.length === 0 || secondPlaceTeams.length === 0) {
+      console.error("No first or second place teams found.");
+      return res.status(500).json({ message: "Error: No valid teams found." });
+    }
+
+    const firstRoundMatches = [];
+
+    for (let i = 0; i < firstPlaceTeams.length; i++) {
+      const firstPlace = firstPlaceTeams[i];
+
+      if (!firstPlace) {
+        console.error(`First place team at index ${i} is undefined`);
+        continue;
+      }
+
+      const availableSecondPlaceTeams = secondPlaceTeams.filter((team, index) => index !== i);
+
+      if (availableSecondPlaceTeams.length === 0) {
+        console.error("No second-place teams available for pairing.");
+        continue;
+      }
+
+      const secondPlace = availableSecondPlaceTeams[Math.floor(Math.random() * availableSecondPlaceTeams.length)];
+
+      if (!secondPlace) {
+        console.error(`Second place team for pairing with ${firstPlace.name} is undefined.`);
+        continue;
+      }
+
+      firstRoundMatches.push({
+        tournamentId,
+        sport,
+        homeTeamID: firstPlace.teamId,
+        awayTeamID: secondPlace.teamId,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        round: 1,
+        group: null,
+      });
+    }
+
+    if (firstRoundMatches.length === 0) {
+      console.error("No first round matches were created.");
+      return res.status(500).json({ message: "Error: No first round matches generated." });
+    }
+
+    await Match.bulkCreate(firstRoundMatches);
+    tournament.tournamentSystem = 'cup';
+    await tournament.save();
+
+    res.status(201).json({
+      message: "First round of the cup generated successfully.",
+      matches: firstRoundMatches,
     });
   } catch (error) {
     console.error(error);
