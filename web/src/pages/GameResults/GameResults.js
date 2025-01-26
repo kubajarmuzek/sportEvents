@@ -115,7 +115,7 @@ const GameResults = () => {
             </div>
             {match.round && (
               <div>
-                <small>Round: {match.round}</small>
+                <small>Round: {parseInt(match.round)+1}</small>
               </div>
             )}
           </li>
