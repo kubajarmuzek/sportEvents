@@ -406,139 +406,68 @@ router.post("/:tournamentId/cup/generate-next-round", async (req, res) => {
   }
 });
 
-router.post("/:tournamentId/round-robin/generate",async (req,res)=>{
-    const {tournamentId}=req.params;
-
-    try{
-      const tournament = await Tournament.findByPk(tournamentId);
-      if(!tournament){
-        return res.status(404).json({message: 'Tournament not found'});
-      }
-
-      const teams = await Team.findAll({
-        where: {
-          tournamentId:tournamentId
-        }
-      });
-
-      if (teams.length < 2){
-        return res.status(400).json({message: "Not enough teams to start the tournament"});
-      }
-
-    if (teams.length%2!=0){
-      let pauseTeam= await Team.create({
-        name:"pause",
-        tournamentId,
-      })
-    }
-    const rounds=[];
-    const totalRounds=teams.length-1;
-    const rotatingTeam=teams.slice(1);
-    const half=Math.floor(teams.length/2);
-
-    
-    for (let i=0;i<totalRounds;i++){
-      const matches=[];
-
-      matches.push({
-        tournamentId,
-        sport: tournament.sport,
-        homeTeamID:teams[0].id,
-        awayTeamID:rotatingTeam[rotatingTeam.length-1].id,
-      });
-
-      for(let i=0;i<half-1;i++){
-        matches.push({
-          tournamentId,
-          sport: tournament.sport,
-          homeTeamID: rotatingTeam[i].id,
-          awayTeamID: rotatingTeam[rotatingTeam.length-2-i].id,
-
-        });
-
-
-      }
-      rotatingTeam.unshift(rotatingTeam.pop());
-      rounds.push(matches);
-    }
-
-    const allMatches=rounds.flat();
-    await Match.bulkCreate(allMatches);
-
-    res.status(201).json({message: "Generated games for round-robin"});;
-
-    }catch(err){
-      res.status(500).json({message: "Tournament generation failed"})
-    }
-});
-
-router.post("/:tournamentId/group/generate-groups", async (req, res) => {
+router.post("/:tournamentId/round-robin/generate", async (req, res) => {
   const { tournamentId } = req.params;
 
   try {
-    const tournament = await Tournament.findByPk(tournamentId);
-    if (!tournament) {
-      throw new Error("Tournament not found");
-    }
-
-    const teams = await Team.findAll({
-      where: { tournamentId },
-    });
-
-    if (teams.length < 2) {
-      return res
-          .status(400)
-          .json({ message: "Not enough teams to start the tournament." });
-    }
-
-    const shuffledTeams = teams.sort(() => 0.5 - Math.random());
-
-    const groups = [];
-    const groupSize = 4;
-    let currentGroup = [];
-
-    shuffledTeams.forEach((team, index) => {
-      currentGroup.push(team);
-      if (currentGroup.length === groupSize || index === shuffledTeams.length - 1) {
-        groups.push(currentGroup);
-        currentGroup = [];
+      const tournament = await Tournament.findByPk(tournamentId);
+      if (!tournament) {
+          return res.status(404).json({ message: 'Tournament not found' });
       }
-    });
 
-    const groupMatches = [];
+      let teams = await Team.findAll({
+          where: {
+              tournamentId: tournamentId
+          }
+      });
 
-    groups.forEach((group, groupIndex) => {
-      for (let i = 0; i < group.length; i++) {
-        for (let j = i + 1; j < group.length; j++) {
-          groupMatches.push({
-            tournamentId,
-            sport: tournament.sport,
-            homeTeamID: group[i].id,
-            awayTeamID: group[j].id,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            group: groupIndex + 1,  // Set group for group-stage matches
-            round: 0,  // Group stage round
+      if (teams.length < 2) {
+          return res.status(400).json({ message: "Not enough teams to start the tournament" });
+      }
+
+      if (teams.length % 2 !== 0) {
+          const pauseTeam = await Team.create({
+              name: "pause",
+              tournamentId,
           });
-        }
+          teams.push(pauseTeam); 
       }
-    });
 
-    if (groupMatches.length > 0) {
-      await Match.bulkCreate(groupMatches);
-    }
+      const rounds = [];
+      const totalRounds = teams.length - 1;
+      const rotatingTeam = teams.slice(1); 
+      const half = Math.floor(teams.length / 2);
 
-    res.status(201).json({
-      message: "Group stage matches generated successfully.",
-      matches: groupMatches,
-      groups: groups.map((group, index) => ({
-        group: index + 1,
-        teams: group.map((team) => team.name),
-      })),
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Internal server error." });
+      for (let i = 0; i < totalRounds; i++) {
+          const matches = [];
+          matches.push({
+              tournamentId,
+              sport: tournament.sport,
+              homeTeamID: teams[0].id,
+              awayTeamID: rotatingTeam[rotatingTeam.length - 1].id,
+          });
+
+          for (let j = 0; j < half - 1; j++) {
+              matches.push({
+                  tournamentId,
+                  sport: tournament.sport,
+                  homeTeamID: rotatingTeam[j].id,
+                  awayTeamID: rotatingTeam[rotatingTeam.length - 2 - j].id,
+              });
+          }
+          rotatingTeam.unshift(rotatingTeam.pop());
+
+          rounds.push(matches);
+      }
+
+      const allMatches = rounds.flat();
+      await Match.bulkCreate(allMatches);
+
+      res.status(201).json({ message: "Generated games for round-robin" });
+
+  } catch (err) {
+      console.error("Error generating tournament:", err);
+      res.status(500).json({ message: "Tournament generation failed" });
   }
 });
 
