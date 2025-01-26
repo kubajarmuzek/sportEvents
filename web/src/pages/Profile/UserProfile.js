@@ -204,9 +204,7 @@ const UserProfile = () => {
             {upcomingOrganizedTournaments.map((tournament) => (
               <li key={tournament.id} className="tournament-item">
                 <strong>{tournament.name}</strong>
-                <span>
-                  {new Date(tournament.startDate).toLocaleDateString()}
-                </span>
+                
                 <div className="actions">
                   <button
                     className="delete-button"
