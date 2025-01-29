@@ -98,11 +98,17 @@ const GameResults = () => {
       </button>
       <h2>Game Results</h2>
       <ul className="results-list">
-        {matches.map((match) => (
+        {matches.filter(
+          (match) =>
+            teams[match.homeTeamID].toLowerCase() !== "bye" &&
+            teams[match.awayTeamID].toLowerCase() !== "bye" &&
+            teams[match.homeTeamID].toLowerCase() !== "pause" &&
+            teams[match.awayTeamID].toLowerCase() !== "pause"
+        ).map((match) => (
           <li key={match.id} className="result-item">
             <div>
               <strong>{teams[match.homeTeamID] || "Unknown Team"}</strong> vs{" "}
-              <strong>{teams[match.awayTeamID] || "Unknown Team"}</strong>
+              <strong>{teams[match.homeTeamID] || "Unknown Team"}</strong>
             </div>
             <div>
               {match.homeScore === null || match.awayScore === null ? (
@@ -140,7 +146,9 @@ const GameResults = () => {
               </tr>
             </thead>
             <tbody>
-              {tableData.map((team, index) => (
+              {tableData.filter((team) => 
+                team.teamName.toLowerCase() != "pause" && team.teamName.toLowerCase() != "bye"
+              ).map((team, index) => (
                 <tr key={index}>
                   <td>{team.teamName}</td>
                   <td>{team.played}</td>

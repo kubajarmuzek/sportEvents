@@ -85,14 +85,14 @@ const TournamentDetails = ({ selectedTournament, onClose }) => {
     }
   };
 
-  const goToResults= () => {
-    navigate(`/game-results/${selectedTournament.id}`)
-  }
+  const goToResults = () => {
+    navigate(`/game-results/${selectedTournament.id}`);
+  };
 
   useEffect(() => {
     if (selectedTournament?.id) {
       fetchTeams(selectedTournament.id);
-      console.log(teams)
+      console.log(teams);
     }
   }, [selectedTournament.id]);
 
@@ -125,43 +125,49 @@ const TournamentDetails = ({ selectedTournament, onClose }) => {
         <h4>Teams</h4>
         {teams.length > 0 ? (
           <ul className="teams-list">
-            {teams.map((team) => (
-              <div className="team" key={team.id}>
-                <li className="team-item">
-                  <strong>{team.name}</strong>
-                  <button
-                    className="view-details-button"
-                    onClick={() => handleViewParticipantsToggle(team.id)}
-                  >
-                    {viewingParticipantsForTeam === team.id
-                      ? "Hide Participants"
-                      : "View Participants"}
-                  </button>
-                  <button
-                    className="view-details-button"
-                    onClick={() => handleSignUpForTeam(team.id)}
-                  >
-                    Sign Up
-                  </button>
-                </li>
+            {teams
+              .filter(
+                (team) =>
+                  team.name.toLowerCase() !== "bye" &&
+                  team.name.toLowerCase() !== "pause"
+              )
+              .map((team) => (
+                <div className="team" key={team.id}>
+                  <li className="team-item">
+                    <strong>{team.name}</strong>
+                    <button
+                      className="view-details-button"
+                      onClick={() => handleViewParticipantsToggle(team.id)}
+                    >
+                      {viewingParticipantsForTeam === team.id
+                        ? "Hide Participants"
+                        : "View Participants"}
+                    </button>
+                    <button
+                      className="view-details-button"
+                      onClick={() => handleSignUpForTeam(team.id)}
+                    >
+                      Sign Up
+                    </button>
+                  </li>
 
-                {viewingParticipantsForTeam === team.id && (
-                  <div>
-                    {participants.length > 0 ? (
-                      <div className="participants-list">
-                        {participants.map((participant, index) => (
-                          <p key={participant.user.id}>
-                            {index + 1}. {participant.user.nickname}
-                          </p>
-                        ))}
-                      </div>
-                    ) : (
-                      <p>No participants in this team</p>
-                    )}
-                  </div>
-                )}
-              </div>
-            ))}
+                  {viewingParticipantsForTeam === team.id && (
+                    <div>
+                      {participants.length > 0 ? (
+                        <div className="participants-list">
+                          {participants.map((participant, index) => (
+                            <p key={participant.user.id}>
+                              {index + 1}. {participant.user.nickname}
+                            </p>
+                          ))}
+                        </div>
+                      ) : (
+                        <p>No participants in this team</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
           </ul>
         ) : (
           <div className="no-participants-message">
