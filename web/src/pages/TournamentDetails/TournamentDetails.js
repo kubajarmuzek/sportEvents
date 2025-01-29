@@ -92,7 +92,6 @@ const TournamentDetails = ({ selectedTournament, onClose }) => {
   useEffect(() => {
     if (selectedTournament?.id) {
       fetchTeams(selectedTournament.id);
-      console.log(teams);
     }
   }, [selectedTournament.id]);
 

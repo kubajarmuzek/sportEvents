@@ -47,7 +47,6 @@ const GameResults = () => {
     try {
       const response = await axios.get(`http://localhost:5000/api/tournaments/${id}/table`);
       setTableData(response.data);
-      console.log(tableData)
     } catch (error) {
       console.error("Error fetching table data:", error);
       alert("Failed to fetch table data.");

@@ -60,6 +60,30 @@
   transition: box-shadow 0.2s ease;
 }
 
+.tournament-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #fafafa;
+  transition: box-shadow 0.2s ease;
+}
+
+.tournament-item > * {
+  font-size: 1rem;
+  flex: 1;
+  text-align: center; 
+}
+
+.tournament-item button {
+  flex: 1; 
+  max-width: 120px;
+}
+
+
 .approval-item:hover,
 .tournament-item:hover {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -134,13 +158,11 @@
 
 
 .tournament-item strong {
-  font-size: 1.1rem;
   margin-right: 5px;
   color: #333;
 }
 
 .tournament-item span {
-  font-size: 1rem;
   color: #777;
 }
 
@@ -148,14 +170,6 @@
   .profile-container {
     padding: 10px;
   }
-
-  .approval-item,
-  .tournament-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-
   .approval-actions,
   .actions {
     justify-content: flex-start;

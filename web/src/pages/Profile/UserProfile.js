@@ -23,7 +23,13 @@ const UserProfile = () => {
       setUpcomingTournaments(response.data.upcoming);
       setPastTournaments(response.data.past);
     } catch (error) {
-      console.error("Error fetching tournaments:", error);
+      if (error.response && error.response.status === 404) {
+        console.warn("No tournaments found.");
+        setUpcomingTournaments([]);
+        setPastTournaments([]);
+      } else {
+        console.error("Error fetching tournaments:", error);
+      }
     }
   };
 
@@ -35,7 +41,13 @@ const UserProfile = () => {
       setOrganizedUpcomingTournaments(response.data.upcoming);
       setOrganizedPastTournaments(response.data.past);
     } catch (error) {
-      console.error("Error fetching tournaments:", error);
+      if (error.response && error.response.status === 404) {
+        console.warn("No organized tournaments found.");
+        setOrganizedUpcomingTournaments([]);
+        setOrganizedPastTournaments([]);
+      } else {
+        console.error("Error fetching organized tournaments:", error);
+      }
     }
   };
 
@@ -46,7 +58,12 @@ const UserProfile = () => {
       );
       setPendingApprovals(response.data);
     } catch (error) {
-      console.error("Error fetching pending approvals:", error);
+      if (error.response && error.response.status === 404) {
+        console.warn("No pending approvals found.");
+        setPendingApprovals([]);
+      } else {
+        console.error("Error fetching pending approvals:", error);
+      }
     } finally {
       setLoading(false);
     }

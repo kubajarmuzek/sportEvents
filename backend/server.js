@@ -26,6 +26,8 @@ app.use('/api/tournaments', require('./routes/tournaments'));
 app.use('/api/teams', require('./routes/teams'));
 app.use('/api/participants',require('./routes/participants'));
 app.use('/api/match',require('./routes/match'));
+app.use('/api/sports',require('./routes/sports'));
+
 
 const PORT = process.env.PORT || 5000;
 

@@ -32,7 +32,6 @@ const TournamentFormScreen = () => {
         organizerId: organizerId,
       }));
     }
-    console.log(organizerId);
   }, []);
 
   useEffect(() => {
@@ -40,7 +39,6 @@ const TournamentFormScreen = () => {
       try {
         const response = await axios.get("http://localhost:5000/api/sports");
         setSportsList(response.data);
-        console.log(response.data);
       } catch (error) {
         console.error("Error fetching sports:", error);
       }
@@ -88,9 +86,7 @@ const TournamentFormScreen = () => {
   const handleSportSelect = (item) => {
     setFormData({
       ...formData,
-      sport: item.sport,
-      maxTeams: item.suggestedTeams.toString(),
-      teamSize: item.teamSize.toString(),
+      sport: item,
     });
     setShowSports(false);
   };
@@ -158,6 +154,7 @@ const TournamentFormScreen = () => {
             type="text"
             name="sport"
             placeholder="Sport"
+            readOnly
             value={formData.sport}
             onClick={() => setShowSports(!showSports)}
             onChange={handleChange}
@@ -171,7 +168,7 @@ const TournamentFormScreen = () => {
                   className="sport-item"
                   onClick={() => handleSportSelect(item)}
                 >
-                  {item.sport}
+                  {item}
                 </li>
               ))}
             </ul>
