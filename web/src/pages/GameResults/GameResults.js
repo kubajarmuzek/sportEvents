@@ -147,7 +147,7 @@ const GameResults = () => {
             </thead>
             <tbody>
               {tableData.filter((team) => 
-                team.teamName.toLowerCase() != "pause" && team.teamName.toLowerCase() != "bye"
+                team.teamName.toLowerCase() !== "pause" && team.teamName.toLowerCase() !== "bye"
               ).map((team, index) => (
                 <tr key={index}>
                   <td>{team.teamName}</td>

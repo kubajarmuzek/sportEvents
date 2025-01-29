@@ -5,8 +5,6 @@ import {
   Navigate,
 } from "react-router-dom";
 import Home from "./pages/Home";
-import LoginScreen from "./pages/Auth/LoginScreen";
-import SignupScreen from "./pages/Auth/RegisterScreen";
 import Auth from "./pages/Auth/Auth";
 import { AuthContext } from "./context/AuthProvider";
 import React, { useContext } from "react";

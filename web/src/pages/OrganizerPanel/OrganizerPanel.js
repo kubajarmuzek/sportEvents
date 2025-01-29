@@ -27,7 +27,7 @@ const OrganizerPanel = () => {
         `http://localhost:5000/api/tournaments/`
       );
       const userTournaments = response.data.filter(
-        (tournament) => tournament.id == id
+        (tournament) => tournament.id === id
       );
       if (userTournaments.length > 0) {
         const formattedStartDate = new Date(userTournaments[0].startDate)
