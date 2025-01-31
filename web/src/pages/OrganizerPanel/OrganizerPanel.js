@@ -27,7 +27,7 @@ const OrganizerPanel = () => {
         `http://localhost:5000/api/tournaments/`
       );
       const userTournaments = response.data.filter(
-        (tournament) => tournament.id === id
+        (tournament) => tournament.id == id
       );
       if (userTournaments.length > 0) {
         const formattedStartDate = new Date(userTournaments[0].startDate)
@@ -469,11 +469,7 @@ const OrganizerPanel = () => {
         {teams.length > 0 ? (
           <ul className="teams-list">
             {teams
-              .filter(
-                (team) =>
-                  team.name.toLowerCase() !== "bye" &&
-                  team.name.toLowerCase() !== "pause"
-              )
+              .filter((team) => team.name.toLowerCase() != "pause" && team.name.toLowerCase() != "bye")
               .map((team) => (
                 <li key={team.id} className="team-item">
                   <div>
@@ -482,6 +478,9 @@ const OrganizerPanel = () => {
                   <button onClick={() => handleDeleteTeam(team.id)}>
                     Delete Team
                   </button>
+                  {
+                    //<button onClick={() => fetchParticipants(team.id)}>View Participants</button>
+                  }
                 </li>
               ))}
           </ul>
