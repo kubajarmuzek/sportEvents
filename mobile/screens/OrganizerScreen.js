@@ -160,6 +160,40 @@ const OrganizerScreen = () => {
             Alert.alert('Error', 'Failed to start the next round.');
         }
     };
+    const handleGenerateSemifinals = async () => {
+        try {
+            const responses = await axios.get('http://10.0.2.2:5000/api/tournaments');
+            const allTournaments = responses.data;
+            const tournament = allTournaments.find((tournament) => tournament.id === selectedTournament.id);
+            const response = await axios.post(
+                `http://10.0.2.2:5000/api/tournaments/${tournament.id}/doubleEliminationSystem/generateSemifinals`
+            );
+            alert(response.data.message || "Semifinals generated successfully!");
+            fetchMatches();
+        } catch (error) {
+            console.error("Error generating semifinals:", error);
+            alert(error.response?.data?.message || "Failed to generate semifinals.");
+        }
+    };
+
+    const handleGenerateFinalsAndThirdPlace = async () => {
+        try {
+            const responses = await axios.get('http://10.0.2.2:5000/api/tournaments');
+            const allTournaments = responses.data;
+            const tournament = allTournaments.find((tournament) => tournament.id === selectedTournament.id);
+            const response = await axios.post(
+                `http://10.0.2.2:5000/api/tournaments/${tournament.id}/doubleEliminationSystem/generateFinalsAndThirdPlace`
+            );
+            alert(
+                response.data.message ||
+                "Finals and 3rd place match generated successfully!"
+            );
+            fetchMatches();
+        } catch (error) {
+            console.error("Error generating finals:", error);
+            alert(error.response?.data?.message || "Failed to generate finals.");
+        }
+    };
 
     useEffect(() => {
         fetchTournaments();
@@ -260,6 +294,17 @@ const OrganizerScreen = () => {
                         <TouchableOpacity style={styles.button} onPress={handleStartNextRound}>
                             <Text style={styles.buttonText}>Start Next Round</Text>
                         </TouchableOpacity>
+                        {tournamentType === 'double elimination system' && (
+                            <>
+                                <TouchableOpacity style={styles.button} onPress={handleGenerateSemifinals}>
+                                    <Text style={styles.buttonText}>Generate semifinals</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.button} onPress={handleGenerateFinalsAndThirdPlace}>
+                                    <Text style={styles.buttonText}>Generate Finals & Third Place</Text>
+                                </TouchableOpacity>
+
+                            </>
+                        )}
                         <TouchableOpacity style={styles.button} onPress={() => setModalVisible(false)}>
                             <Text style={styles.buttonText}>Close</Text>
                         </TouchableOpacity>
