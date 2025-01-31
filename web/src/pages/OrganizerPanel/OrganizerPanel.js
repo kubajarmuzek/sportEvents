@@ -177,7 +177,7 @@ const OrganizerPanel = () => {
           endpoint = `http://localhost:5000/api/tournaments/${id}/round-robin/generate`;
           break;
         case "group and cup":
-          endpoint = "";
+          endpoint = `http://localhost:5000/api/tournaments/${id}/group/generate-groups`;
           break;
         case "double elimination system":
           endpoint = `http://localhost:5000/api/tournaments/${id}/doubleEliminationSystem/startTournament`;
@@ -349,6 +349,24 @@ const OrganizerPanel = () => {
     } catch (error) {
       console.error("Error deleting team:", error);
       alert("Failed to delete team.");
+    }
+  };
+
+  const handleGenerateFirstKnockoutRound = async () => {
+    try {
+      const response = await axios.post(
+        `http://localhost:5000/api/tournaments/${id}/group/generate-first-round`
+      );
+      alert(
+        response.data.message || "First knockout round generated successfully!"
+      );
+      fetchMatches(); // Refresh match list
+    } catch (error) {
+      console.error("Error generating first knockout round:", error);
+      alert(
+        error.response?.data?.message ||
+          "Failed to generate first knockout round."
+      );
     }
   };
 
@@ -570,6 +588,92 @@ const OrganizerPanel = () => {
             <div>Loading matches...</div>
           ) : matches.length > 0 ? (
             <ul className="matches-list">
+              {tournament.tournamentSystem == "group and cup" ? (
+                <div className="matches-section">
+                  <div className="group-stage">
+                    <h2>Group Stage Matches</h2>
+                    {matches.filter((match) => match.group !== null).length >
+                    0 ? (
+                      matches
+                        .filter((match) => match.group !== null)
+                        .map((match) => (
+                          <li key={match.id} className="match-item">
+                            <div>
+                              <strong>Match:</strong> {match.homeTeamName} vs{" "}
+                              {match.awayTeamName}
+                            </div>
+                            <div>
+                              <strong>Group:</strong> {match.group}
+                            </div>
+                            {match.homeScore === null &&
+                            match.awayScore === null ? (
+                              <div className="score-inputs">
+                                <input
+                                  type="number"
+                                  placeholder="Home Score"
+                                  value={scoreInputs[match.id]?.homeScore || ""}
+                                  onChange={(e) =>
+                                    handleScoreChange(
+                                      match.id,
+                                      "homeScore",
+                                      e.target.value
+                                    )
+                                  }
+                                />
+                                <input
+                                  type="number"
+                                  placeholder="Away Score"
+                                  value={scoreInputs[match.id]?.awayScore || ""}
+                                  onChange={(e) =>
+                                    handleScoreChange(
+                                      match.id,
+                                      "awayScore",
+                                      e.target.value
+                                    )
+                                  }
+                                />
+                                <button
+                                  onClick={() =>
+                                    handleAddResult(
+                                      match.id,
+                                      scoreInputs[match.id]?.homeScore,
+                                      scoreInputs[match.id]?.awayScore
+                                    )
+                                  }
+                                >
+                                  Add Result
+                                </button>
+                              </div>
+                            ) : (
+                              <div>
+                                <strong>Score:</strong> {match.homeScore} :{" "}
+                                {match.awayScore}
+                              </div>
+                            )}
+                          </li>
+                        ))
+                    ) : (
+                      <div>No group matches found.</div>
+                    )}
+                  </div>
+                  <button
+                    onClick={handleGenerateFirstKnockoutRound}
+                    className="form-button"
+                  >
+                    Generate First Round of Knockout Stage
+                  </button>{" "}
+
+                  <button
+                    onClick={handleStartNextRound}
+                    className="form-button"
+                  >
+                    Generate Next Round of Knockout Stage
+                  </button>{" "}
+                </div>
+              ) : (
+                <div></div>
+              )}
+
               {tournament.tournamentSystem == "double elimination system" ? (
                 <div className="matches-section">
                   {matchesLoading ? (
@@ -870,7 +974,10 @@ const OrganizerPanel = () => {
                     Generate Finals & Third Place
                   </button>
                 </div>
-              ) : (
+              ) : <div></div>}
+
+              {tournament.tournamentSystem=="cup"?
+              (
                 matches
                   .filter(
                     (match) =>
@@ -937,7 +1044,8 @@ const OrganizerPanel = () => {
                       </div>
                     </li>
                   ))
-              )}
+              ) : <div></div>  
+            }
             </ul>
           ) : (
             <div>No matches found for this tournament.</div>
