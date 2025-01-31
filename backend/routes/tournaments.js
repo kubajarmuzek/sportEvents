@@ -487,13 +487,13 @@ router.post("/:tournamentId/group/generate-groups", async (req, res) => {
           .json({ message: "Not enough teams to start the tournament." });
     }
 
-    let groupNumber = 0;
-    for(let i=2; i<=32; i*2){
-      if(teams.length/i <= 6){
-        groupNumber = i;
-        break;
-      }
+    const maxTeamsPerGroup = 5;
+    const minGroups = Math.ceil(teams.length / maxTeamsPerGroup);
+    let tempGroupNumber = 1;
+    while (tempGroupNumber < minGroups) {
+      tempGroupNumber *= 2;
     }
+    const groupNumber = Math.min(tempGroupNumber, 32);
 
 
     const shuffledTeams = teams.sort(() => 0.5 - Math.random());

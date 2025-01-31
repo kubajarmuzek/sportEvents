@@ -84,9 +84,8 @@ const HomeScreen = ({ navigation }) => {
           </View>
         </View>
 
-        {/* Scrollable Content */}
         <FlatList
-            contentContainerStyle={{ paddingTop: 120 }}  // Added space for the fixed header
+            contentContainerStyle={{ paddingTop: 120 }}
             ListFooterComponent={renderContent}
             keyExtractor={(item, index) => index.toString()}
             data={[]}
