@@ -177,10 +177,10 @@ const OrganizerPanel = () => {
           endpoint = `http://localhost:5000/api/tournaments/${id}/round-robin/generate`;
           break;
         case "group and cup":
-          // Add the appropriate endpoint for group and cup
+          endpoint = "";
           break;
         case "double elimination system":
-          // Add the appropriate endpoint for double elimination
+          endpoint = `http://localhost:5000/api/tournaments/${id}/doubleEliminationSystem/startTournament`;
           break;
         default:
           alert("Please select a valid tournament system.");
@@ -193,6 +193,48 @@ const OrganizerPanel = () => {
     } catch (error) {
       console.error("Error starting tournament:", error);
       alert(error.response?.data?.message || "Failed to start the tournament.");
+    }
+  };
+
+  const handleGenerateNextRound = async () => {
+    try {
+      const response = await axios.post(
+        `http://localhost:5000/api/tournaments/${id}/doubleEliminationSystem/generateNextRound`
+      );
+      alert(response.data.message || "Next round generated successfully!");
+      fetchMatches();
+    } catch (error) {
+      console.error("Error generating next round:", error);
+      alert(error.response?.data?.message || "Failed to generate next round.");
+    }
+  };
+
+  const handleGenerateSemifinals = async () => {
+    try {
+      const response = await axios.post(
+        `http://localhost:5000/api/tournaments/${id}/doubleEliminationSystem/generateSemifinals`
+      );
+      alert(response.data.message || "Semifinals generated successfully!");
+      fetchMatches();
+    } catch (error) {
+      console.error("Error generating semifinals:", error);
+      alert(error.response?.data?.message || "Failed to generate semifinals.");
+    }
+  };
+
+  const handleGenerateFinalsAndThirdPlace = async () => {
+    try {
+      const response = await axios.post(
+        `http://localhost:5000/api/tournaments/${id}/doubleEliminationSystem/generateFinalsAndThirdPlace`
+      );
+      alert(
+        response.data.message ||
+          "Finals and 3rd place match generated successfully!"
+      );
+      fetchMatches();
+    } catch (error) {
+      console.error("Error generating finals:", error);
+      alert(error.response?.data?.message || "Failed to generate finals.");
     }
   };
 
@@ -469,7 +511,11 @@ const OrganizerPanel = () => {
         {teams.length > 0 ? (
           <ul className="teams-list">
             {teams
-              .filter((team) => team.name.toLowerCase() != "pause" && team.name.toLowerCase() != "bye")
+              .filter(
+                (team) =>
+                  team.name.toLowerCase() != "pause" &&
+                  team.name.toLowerCase() != "bye"
+              )
               .map((team) => (
                 <li key={team.id} className="team-item">
                   <div>
@@ -524,71 +570,374 @@ const OrganizerPanel = () => {
             <div>Loading matches...</div>
           ) : matches.length > 0 ? (
             <ul className="matches-list">
-              {matches
-                .filter(
-                  (match) =>
-                    match.homeTeamName.toLowerCase() !== "bye" &&
-                    match.awayTeamName.toLowerCase() !== "bye" &&
-                    match.homeTeamName.toLowerCase() !== "pause" &&
-                    match.awayTeamName.toLowerCase() !== "pause"
-                )
-                .map((match) => (
-                  <li key={match.id} className="match-item">
-                    <div>
-                      <strong>Match:</strong> {match.homeTeamName} vs{" "}
-                      {match.awayTeamName}
-                    </div>
-                    <div>
-                      <strong>Round:</strong> {match.round}
-                    </div>
-                    <div>
-                      {match.homeScore === null && match.awayScore === null ? (
-                        <div className="score-inputs">
-                          <input
-                            type="number"
-                            placeholder="Home Score"
-                            value={scoreInputs[match.id]?.homeScore || ""}
-                            onChange={(e) =>
-                              handleScoreChange(
-                                match.id,
-                                "homeScore",
-                                e.target.value
-                              )
-                            }
-                          />
-                          <input
-                            type="number"
-                            placeholder="Away Score"
-                            value={scoreInputs[match.id]?.awayScore || ""}
-                            onChange={(e) =>
-                              handleScoreChange(
-                                match.id,
-                                "awayScore",
-                                e.target.value
-                              )
-                            }
-                          />
-                          <button
-                            onClick={() =>
-                              handleAddResult(
-                                match.id,
-                                scoreInputs[match.id]?.homeScore,
-                                scoreInputs[match.id]?.awayScore
-                              )
-                            }
-                          >
-                            Add Result
-                          </button>
-                        </div>
-                      ) : (
-                        <div>
-                          <strong>Score:</strong> {match.homeScore} :{" "}
-                          {match.awayScore}
-                        </div>
-                      )}
-                    </div>
-                  </li>
-                ))}
+              {tournament.tournamentSystem == "double elimination system" ? (
+                <div className="matches-section">
+                  {matchesLoading ? (
+                    <div>Loading matches...</div>
+                  ) : matches.length > 0 ? (
+                    <>
+                      <h3>Upper Bracket</h3>
+                      <ul className="matches-list">
+                        {matches
+                          .filter((match) => match.bracket === "upper")
+                          .map((match) => (
+                            <li key={match.id} className="match-item">
+                              <div>
+                                <strong>Match:</strong> {match.homeTeamName} vs{" "}
+                                {match.awayTeamName}
+                              </div>
+                              <div>
+                                <strong>Round:</strong> {match.round}
+                              </div>
+                              {match.homeScore === null &&
+                              match.awayScore === null ? (
+                                <div className="score-inputs">
+                                  <input
+                                    type="number"
+                                    placeholder="Home Score"
+                                    value={
+                                      scoreInputs[match.id]?.homeScore || ""
+                                    }
+                                    onChange={(e) =>
+                                      handleScoreChange(
+                                        match.id,
+                                        "homeScore",
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                  <input
+                                    type="number"
+                                    placeholder="Away Score"
+                                    value={
+                                      scoreInputs[match.id]?.awayScore || ""
+                                    }
+                                    onChange={(e) =>
+                                      handleScoreChange(
+                                        match.id,
+                                        "awayScore",
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                  <button
+                                    onClick={() =>
+                                      handleAddResult(
+                                        match.id,
+                                        scoreInputs[match.id]?.homeScore,
+                                        scoreInputs[match.id]?.awayScore
+                                      )
+                                    }
+                                  >
+                                    Add Result
+                                  </button>
+                                </div>
+                              ) : (
+                                <div>
+                                  <strong>Score:</strong> {match.homeScore} :{" "}
+                                  {match.awayScore}
+                                </div>
+                              )}
+                            </li>
+                          ))}
+                      </ul>
+
+                      <h3>Lower Bracket</h3>
+                      <ul className="matches-list">
+                        {matches
+                          .filter((match) => match.bracket === "lower")
+                          .map((match) => (
+                            <li key={match.id} className="match-item">
+                              <div>
+                                <strong>Match:</strong> {match.homeTeamName} vs{" "}
+                                {match.awayTeamName}
+                              </div>
+                              <div>
+                                <strong>Round:</strong> {match.round}
+                              </div>
+                              {match.homeScore === null &&
+                              match.awayScore === null ? (
+                                <div className="score-inputs">
+                                  <input
+                                    type="number"
+                                    placeholder="Home Score"
+                                    value={
+                                      scoreInputs[match.id]?.homeScore || ""
+                                    }
+                                    onChange={(e) =>
+                                      handleScoreChange(
+                                        match.id,
+                                        "homeScore",
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                  <input
+                                    type="number"
+                                    placeholder="Away Score"
+                                    value={
+                                      scoreInputs[match.id]?.awayScore || ""
+                                    }
+                                    onChange={(e) =>
+                                      handleScoreChange(
+                                        match.id,
+                                        "awayScore",
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                  <button
+                                    onClick={() =>
+                                      handleAddResult(
+                                        match.id,
+                                        scoreInputs[match.id]?.homeScore,
+                                        scoreInputs[match.id]?.awayScore
+                                      )
+                                    }
+                                  >
+                                    Add Result
+                                  </button>
+                                </div>
+                              ) : (
+                                <div>
+                                  <strong>Score:</strong> {match.homeScore} :{" "}
+                                  {match.awayScore}
+                                </div>
+                              )}
+                            </li>
+                          ))}
+                      </ul>
+
+                      <h3>Semifinals</h3>
+                      <ul className="matches-list">
+                        {matches
+                          .filter(
+                            (match) =>
+                              match.round === "semi" &&
+                              match.bracket === "final"
+                          )
+                          .map((match) => (
+                            <li key={match.id} className="match-item">
+                              <div>
+                                <strong>Match:</strong> {match.homeTeamName} vs{" "}
+                                {match.awayTeamName}
+                              </div>
+                              <div>
+                                <strong>Round:</strong> {match.round}
+                              </div>
+                              {match.homeScore === null &&
+                              match.awayScore === null ? (
+                                <div className="score-inputs">
+                                  <input
+                                    type="number"
+                                    placeholder="Home Score"
+                                    value={
+                                      scoreInputs[match.id]?.homeScore || ""
+                                    }
+                                    onChange={(e) =>
+                                      handleScoreChange(
+                                        match.id,
+                                        "homeScore",
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                  <input
+                                    type="number"
+                                    placeholder="Away Score"
+                                    value={
+                                      scoreInputs[match.id]?.awayScore || ""
+                                    }
+                                    onChange={(e) =>
+                                      handleScoreChange(
+                                        match.id,
+                                        "awayScore",
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                  <button
+                                    onClick={() =>
+                                      handleAddResult(
+                                        match.id,
+                                        scoreInputs[match.id]?.homeScore,
+                                        scoreInputs[match.id]?.awayScore
+                                      )
+                                    }
+                                  >
+                                    Add Result
+                                  </button>
+                                </div>
+                              ) : (
+                                <div>
+                                  <strong>Score:</strong> {match.homeScore} :{" "}
+                                  {match.awayScore}
+                                </div>
+                              )}
+                            </li>
+                          ))}
+                      </ul>
+
+                      <h3>Final & 3rd Place</h3>
+                      <ul className="matches-list">
+                        {matches
+                          .filter((match) =>
+                            ["final", "third_place"].includes(match.round)
+                          )
+                          .map((match) => (
+                            <li key={match.id} className="match-item">
+                              <div>
+                                <strong>Match:</strong> {match.homeTeamName} vs{" "}
+                                {match.awayTeamName}
+                              </div>
+                              <div>
+                                <strong>Round:</strong>{" "}
+                                {match.round.replace("_", " ")}{" "}
+                              </div>
+                              {match.homeScore === null &&
+                              match.awayScore === null ? (
+                                <div className="score-inputs">
+                                  <input
+                                    type="number"
+                                    placeholder="Home Score"
+                                    value={
+                                      scoreInputs[match.id]?.homeScore || ""
+                                    }
+                                    onChange={(e) =>
+                                      handleScoreChange(
+                                        match.id,
+                                        "homeScore",
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                  <input
+                                    type="number"
+                                    placeholder="Away Score"
+                                    value={
+                                      scoreInputs[match.id]?.awayScore || ""
+                                    }
+                                    onChange={(e) =>
+                                      handleScoreChange(
+                                        match.id,
+                                        "awayScore",
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                  <button
+                                    onClick={() =>
+                                      handleAddResult(
+                                        match.id,
+                                        scoreInputs[match.id]?.homeScore,
+                                        scoreInputs[match.id]?.awayScore
+                                      )
+                                    }
+                                  >
+                                    Add Result
+                                  </button>
+                                </div>
+                              ) : (
+                                <div>
+                                  <strong>Score:</strong> {match.homeScore} :{" "}
+                                  {match.awayScore}
+                                </div>
+                              )}
+                            </li>
+                          ))}
+                      </ul>
+                    </>
+                  ) : (
+                    <div>No matches found for this tournament.</div>
+                  )}
+
+                  <button
+                    onClick={handleGenerateNextRound}
+                    className="form-button"
+                  >
+                    Generate Next Round
+                  </button>
+                  <button
+                    onClick={handleGenerateSemifinals}
+                    className="form-button"
+                  >
+                    Generate Semifinals
+                  </button>
+                  <button
+                    onClick={handleGenerateFinalsAndThirdPlace}
+                    className="form-button"
+                  >
+                    Generate Finals & Third Place
+                  </button>
+                </div>
+              ) : (
+                matches
+                  .filter(
+                    (match) =>
+                      match.homeTeamName.toLowerCase() !== "bye" &&
+                      match.awayTeamName.toLowerCase() !== "bye" &&
+                      match.homeTeamName.toLowerCase() !== "pause" &&
+                      match.awayTeamName.toLowerCase() !== "pause"
+                  )
+                  .map((match) => (
+                    <li key={match.id} className="match-item">
+                      <div>
+                        <strong>Match:</strong> {match.homeTeamName} vs{" "}
+                        {match.awayTeamName}
+                      </div>
+                      <div>
+                        <strong>Round:</strong> {match.round}
+                      </div>
+                      <div>
+                        {match.homeScore === null &&
+                        match.awayScore === null ? (
+                          <div className="score-inputs">
+                            <input
+                              type="number"
+                              placeholder="Home Score"
+                              value={scoreInputs[match.id]?.homeScore || ""}
+                              onChange={(e) =>
+                                handleScoreChange(
+                                  match.id,
+                                  "homeScore",
+                                  e.target.value
+                                )
+                              }
+                            />
+                            <input
+                              type="number"
+                              placeholder="Away Score"
+                              value={scoreInputs[match.id]?.awayScore || ""}
+                              onChange={(e) =>
+                                handleScoreChange(
+                                  match.id,
+                                  "awayScore",
+                                  e.target.value
+                                )
+                              }
+                            />
+                            <button
+                              onClick={() =>
+                                handleAddResult(
+                                  match.id,
+                                  scoreInputs[match.id]?.homeScore,
+                                  scoreInputs[match.id]?.awayScore
+                                )
+                              }
+                            >
+                              Add Result
+                            </button>
+                          </div>
+                        ) : (
+                          <div>
+                            <strong>Score:</strong> {match.homeScore} :{" "}
+                            {match.awayScore}
+                          </div>
+                        )}
+                      </div>
+                    </li>
+                  ))
+              )}
             </ul>
           ) : (
             <div>No matches found for this tournament.</div>
