@@ -3,7 +3,8 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import "./OrganizerPanel.css";
 import { FaArrowLeft } from "react-icons/fa";
-import MatchCard from "../../components/MatchCard";
+import TournamentEditForm from "./TournamentEditForm";
+import RenderMatches from "./RenderMatches";
 
 const OrganizerPanel = () => {
   const { id } = useParams();
@@ -387,354 +388,25 @@ const OrganizerPanel = () => {
     }
   };
 
-  const renderMatchesBySystem = () => {
-    switch (tournament.tournamentSystem) {
-      case "round-robin":
-        return (
-          <ul className="matches-list">
-            {matches
-              .filter(
-                (match) =>
-                  match.homeTeamName.toLowerCase() !== "bye" &&
-                  match.awayTeamName.toLowerCase() !== "bye" &&
-                  match.homeTeamName.toLowerCase() !== "pause" &&
-                  match.awayTeamName.toLowerCase() !== "pause"
-              )
-              .map((match) => (
-                <MatchCard
-                  key={match.id}
-                  match={match}
-                  scoreInput={scoreInputs[match.id]}
-                  onScoreChange={(id, field, value) =>
-                    setScoreInputs((prev) => ({
-                      ...prev,
-                      [id]: {
-                        ...prev[id],
-                        [field]: value,
-                      },
-                    }))
-                  }
-                  onAddResult={handleAddResult}
-                />
-              ))}
-          </ul>
-        );
-
-      case "group and cup":
-        return (
-          <div className="group-stage">
-            <h2>Group Stage Matches</h2>
-            <ul className="matches-list">
-              {matches.filter((match) => match.group !== null).length > 0 ? (
-                matches
-                  .filter((match) => match.group !== null)
-                  .map((match) => (
-                    <MatchCard
-                      key={match.id}
-                      match={match}
-                      scoreInput={scoreInputs[match.id]}
-                      onScoreChange={(id, field, value) =>
-                        setScoreInputs((prev) => ({
-                          ...prev,
-                          [id]: {
-                            ...prev[id],
-                            [field]: value,
-                          },
-                        }))
-                      }
-                      onAddResult={handleAddResult}
-                    />
-                  ))
-              ) : (
-                <div>No group matches found.</div>
-              )}
-            </ul>
-            <button
-              onClick={handleGenerateFirstKnockoutRound}
-              className="form-button"
-            >
-              Generate First Round of Knockout Stage
-            </button>
-
-            <button onClick={handleStartNextRound} className="form-button">
-              Generate Next Round of Knockout Stage
-            </button>
-          </div>
-        );
-
-      case "cup":
-        return (
-          <>
-            <ul className="matches-list">
-              {matches
-                .filter(
-                  (match) =>
-                    match.homeTeamName.toLowerCase() !== "bye" &&
-                    match.awayTeamName.toLowerCase() !== "bye" &&
-                    match.homeTeamName.toLowerCase() !== "pause" &&
-                    match.awayTeamName.toLowerCase() !== "pause"
-                )
-                .map((match) => (
-                  <MatchCard
-                    key={match.id}
-                    match={match}
-                    scoreInput={scoreInputs[match.id]}
-                    onScoreChange={(id, field, value) =>
-                      setScoreInputs((prev) => ({
-                        ...prev,
-                        [id]: {
-                          ...prev[id],
-                          [field]: value,
-                        },
-                      }))
-                    }
-                    onAddResult={handleAddResult}
-                  />
-                ))}
-            </ul>
-            <button onClick={handleStartNextRound} className="form-button">
-              Start Next Round
-            </button>
-          </>
-        );
-
-      case "double elimination system":
-        return (
-          <>
-            <h3>Upper Bracket</h3>
-            <ul className="matches-list">
-              {matches
-                .filter((match) => match.bracket === "upper")
-                .map((match) => (
-                  <MatchCard
-                    key={match.id}
-                    match={match}
-                    scoreInput={scoreInputs[match.id]}
-                    onScoreChange={(id, field, value) =>
-                      setScoreInputs((prev) => ({
-                        ...prev,
-                        [id]: {
-                          ...prev[id],
-                          [field]: value,
-                        },
-                      }))
-                    }
-                    onAddResult={handleAddResult}
-                  />
-                ))}
-            </ul>
-
-            <h3>Lower Bracket</h3>
-            <ul className="matches-list">
-              {matches
-                .filter((match) => match.bracket === "lower")
-                .map((match) => (
-                  <MatchCard
-                    key={match.id}
-                    match={match}
-                    scoreInput={scoreInputs[match.id]}
-                    onScoreChange={(id, field, value) =>
-                      setScoreInputs((prev) => ({
-                        ...prev,
-                        [id]: {
-                          ...prev[id],
-                          [field]: value,
-                        },
-                      }))
-                    }
-                    onAddResult={handleAddResult}
-                  />
-                ))}
-            </ul>
-
-            <h3>Final & 3rd Place</h3>
-            <ul className="matches-list">
-              {matches
-                .filter((match) =>
-                  ["final", "third_place", "semi"].includes(match.round)
-                )
-                .map((match) => (
-                  <MatchCard
-                    key={match.id}
-                    match={match}
-                    scoreInput={scoreInputs[match.id]}
-                    onScoreChange={(id, field, value) =>
-                      setScoreInputs((prev) => ({
-                        ...prev,
-                        [id]: {
-                          ...prev[id],
-                          [field]: value,
-                        },
-                      }))
-                    }
-                    onAddResult={handleAddResult}
-                  />
-                ))}
-            </ul>
-
-            <div style={{ marginTop: "1rem" }}>
-              <button onClick={handleGenerateNextRound} className="form-button">
-                Generate Next Round
-              </button>
-              <button
-                onClick={handleGenerateSemifinals}
-                className="form-button"
-              >
-                Generate Semifinals
-              </button>
-              <button
-                onClick={handleGenerateFinalsAndThirdPlace}
-                className="form-button"
-              >
-                Generate Finals & 3rd Place
-              </button>
-            </div>
-          </>
-        );
-
-      default:
-        return <div>No matches available for this system</div>;
-    }
-  };
-
   if (loading) return <div>Loading tournament data...</div>;
   if (error) return <div>{error}</div>;
   if (!tournament) return <div>No tournament data found</div>;
 
   return (
     <div className="container-organizer">
-      <div className="edit-form-container">
-        <button
-          onClick={handleGoBack}
-          className="go-back-button"
-          title="Go Back"
-        >
-          <FaArrowLeft size={40} />
-        </button>
-        <h2 className="form-header">Edit Tournament</h2>
-        <form onSubmit={handleSubmit}>
-          <div>
-            <label>Name</label>
-            <input
-              className="form-input"
-              type="text"
-              name="name"
-              value={tournament.name || ""}
-              onChange={handleChange}
-            />
-          </div>
-          <div>
-            <label>Start Date</label>
-            <input
-              className="form-input"
-              type="date"
-              name="startDate"
-              value={tournament.startDate || ""}
-              onChange={handleChange}
-            />
-          </div>
-          <div>
-            <label>Location</label>
-            <div className="location-container">
-              <input
-                className="form-input"
-                type="text"
-                name="location"
-                value={tournament.location || ""}
-                onChange={handleLocationChange}
-              />
-              {suggestions.length > 0 && (
-                <ul className="suggestions-list">
-                  {suggestions.map((item) => (
-                    <li
-                      key={item.id}
-                      className="suggestion-item"
-                      onClick={() => handleLocationSelect(item)}
-                    >
-                      {item.place_name}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </div>
-          <div>
-            <label>Description</label>
-            <textarea
-              className="form-input"
-              name="description"
-              value={tournament.description || ""}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="sport-container">
-            <label>Sport</label>
-            <input
-              className="form-input"
-              type="text"
-              name="sport"
-              value={tournament.sport || ""}
-              onChange={handleChange}
-              onClick={() => setShowSports(!showSports)}
-            />
-            {showSports && (
-              <ul className="sport-list">
-                {sportsList.map((item, index) => (
-                  <li
-                    key={index}
-                    className="sport-item"
-                    onClick={() => handleSportSelect(item)}
-                  >
-                    {item.sport}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-          <div>
-            <label>Max Teams</label>
-            <input
-              className="form-input"
-              type="number"
-              name="maxTeams"
-              value={tournament.maxTeams || ""}
-              onChange={handleChange}
-            />
-          </div>
-          <div>
-            <label>Team Size</label>
-            <input
-              className="form-input"
-              type="number"
-              name="teamSize"
-              value={tournament.teamSize || ""}
-              onChange={handleChange}
-            />
-          </div>
-          <div>
-            <label>Bracket Type</label>
-            <select
-              className="form-input"
-              name="tournamentSystem"
-              value={tournament.tournamentSystem || ""}
-              onChange={handleChange}
-            >
-              <option value="">Select Bracket Type</option>
-              <option value="cup">cup</option>
-              <option value="round-robin">round-robin</option>
-              <option value="group and cup">group and cup</option>
-              <option value="double elimination system">
-                double elimination system
-              </option>
-            </select>
-          </div>
-
-          <button className="form-button" type="submit">
-            Update Tournament
-          </button>
-        </form>
-      </div>
-
+      <TournamentEditForm
+        tournament={tournament}
+        suggestions={suggestions}
+        showSports={showSports}
+        sportsList={sportsList}
+        onGoBack={handleGoBack}
+        onChange={handleChange}
+        onLocationChange={handleLocationChange}
+        onLocationSelect={handleLocationSelect}
+        onSportSelect={handleSportSelect}
+        onToggleSports={() => setShowSports(!showSports)}
+        onSubmit={handleSubmit}
+      />
       <div className="teams-section">
         <h2>Teams</h2>
         {teams.length > 0 ? (
@@ -764,7 +436,9 @@ const OrganizerPanel = () => {
         )}
 
         {selectedTeamId && participants.length > 0 && (
+
           <div className="participants-section">
+
             <h3>
               Participants for Team{" "}
               {teams.find((t) => t.id === selectedTeamId)?.name}
@@ -795,10 +469,25 @@ const OrganizerPanel = () => {
         )}
         <div className="matches-section">
           <h2>Matches</h2>
+
           {matchesLoading ? (
             <div>Loading matches...</div>
           ) : (
-            renderMatchesBySystem()
+            <RenderMatches
+              matches={matches}
+              tournament={tournament}
+              scoreInputs={scoreInputs}
+              setScoreInputs={setScoreInputs}
+              handleAddResult={handleAddResult}
+              handleGenerateFirstKnockoutRound={
+                handleGenerateFirstKnockoutRound
+              }
+              handleGenerateNextRound={handleStartNextRound}
+              handleGenerateSemifinals={handleGenerateSemifinals}
+              handleGenerateFinalsAndThirdPlace={
+                handleGenerateFinalsAndThirdPlace
+              }
+            />
           )}
         </div>
       </div>
