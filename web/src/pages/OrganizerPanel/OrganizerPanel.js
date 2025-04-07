@@ -2,7 +2,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import "./OrganizerPanel.css";
-import { FaArrowLeft } from "react-icons/fa";
 import TournamentEditForm from "./TournamentEditForm";
 import RenderMatches from "./RenderMatches";
 
@@ -79,24 +78,23 @@ const OrganizerPanel = () => {
     }
   };
 
+  const fetchSports = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/sports");
+      setSportsList(response.data);
+    } catch (error) {
+      console.error("Error fetching sports:", error);
+    }
+  };
+
+
   useEffect(() => {
     fetchTournament();
     fetchMatches();
     fetchTeams();
-  }, [id]);
-
-  useEffect(() => {
-    const fetchSports = async () => {
-      try {
-        const response = await axios.get("http://localhost:5000/api/sports");
-        setSportsList(response.data);
-      } catch (error) {
-        console.error("Error fetching sports:", error);
-      }
-    };
-
     fetchSports();
-  }, []);
+
+  }, [id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -198,19 +196,6 @@ const OrganizerPanel = () => {
     }
   };
 
-  const handleGenerateNextRound = async () => {
-    try {
-      const response = await axios.post(
-        `http://localhost:5000/api/tournaments/${id}/doubleEliminationSystem/generateNextRound`
-      );
-      alert(response.data.message || "Next round generated successfully!");
-      fetchMatches();
-    } catch (error) {
-      console.error("Error generating next round:", error);
-      alert(error.response?.data?.message || "Failed to generate next round.");
-    }
-  };
-
   const handleGenerateSemifinals = async () => {
     try {
       const response = await axios.post(
@@ -258,16 +243,6 @@ const OrganizerPanel = () => {
       console.error("Error adding match result:", error);
       alert("Failed to add match result.");
     }
-  };
-
-  const handleScoreChange = (matchId, field, value) => {
-    setScoreInputs((prev) => ({
-      ...prev,
-      [matchId]: {
-        ...prev[matchId],
-        [field]: value,
-      },
-    }));
   };
 
   const isLatestRoundFinished = () => {
@@ -362,7 +337,7 @@ const OrganizerPanel = () => {
       alert(
         response.data.message || "First knockout round generated successfully!"
       );
-      fetchMatches(); // Refresh match list
+      fetchMatches();
     } catch (error) {
       console.error("Error generating first knockout round:", error);
       alert(
