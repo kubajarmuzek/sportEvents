@@ -24,6 +24,8 @@ const TournamentFormScreen = () => {
   const [suggestions, setSuggestions] = useState([]);
   const [showSports, setShowSports] = useState(false);
 
+  const accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
+
   useEffect(() => {
     const organizerId = localStorage.getItem("id");
     if (organizerId) {
@@ -62,8 +64,7 @@ const TournamentFormScreen = () => {
           `https://api.mapbox.com/geocoding/v5/mapbox.places/${query}.json`,
           {
             params: {
-              access_token:
-                "pk.eyJ1IjoiamFrdWJqIiwiYSI6ImNtMjFsajY0YjBzeDkyaXNjbHh2MzVhbGgifQ.FKQ4ylPaSfQ8s1G1_Hh75g",
+              access_token: accessToken,
               autocomplete: true,
               limit: 5,
             },
