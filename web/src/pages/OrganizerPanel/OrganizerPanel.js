@@ -2,8 +2,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import "./OrganizerPanel.css";
-import TournamentEditForm from "./TournamentEditForm";
+import TournamentEditForm from "../../components/TournamentEditForm"
 import RenderMatches from "./RenderMatches";
+import BracketDisplay from "../BracketDisplay/BracketDisplay";
 
 const OrganizerPanel = () => {
   const { id } = useParams();
@@ -466,6 +467,7 @@ const OrganizerPanel = () => {
           )}
         </div>
       </div>
+      <BracketDisplay/>
     </div>
   );
 };
